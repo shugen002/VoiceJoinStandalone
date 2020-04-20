@@ -3,19 +3,23 @@ import { GoIMConnection } from 'goimprotocol'
 import EventEmitter from 'events'
 import zlib from 'zlib'
 export class DanmakuConnection extends EventEmitter {
-  constructor (roomId) {
+  constructor (uid, roomId, conf) {
     super()
     this.connectConfig = {
       type: 'websocket',
-      host: 'broadcastlv.chat.bilibili.com',
+      host: conf.host_server_list[0].host,
       path: 'sub',
-      port: 443,
+      port: conf.host_server_list[0].wss_port,
       wss: true,
       version: 2,
       authInfo: {
-        uid: Math.floor(Math.random() * 1000000),
+        uid: uid,
         roomid: roomId,
-        protover: 2
+        protover: 2,
+        platform: 'web',
+        clientver: '1.10.6',
+        type: 2,
+        key: conf.token
       }
     }
     this.shouldClose = false
@@ -26,7 +30,15 @@ export class DanmakuConnection extends EventEmitter {
     this.connection.connect()
   }
 
-  reconnect () {
+  _reconnect () {
+    setTimeout(() => {
+      this.emit('needReconnect')
+    }, 1000)
+  }
+
+  reconnect (conf) {
+    this.connectConfig.host = conf.host_server_list[0].host
+    this.connectConfig.authInfo.key = conf.token
     this.connection = new GoIMConnection(this.connectConfig)
     this.listen()
     this.connection.connect()
@@ -42,7 +54,7 @@ export class DanmakuConnection extends EventEmitter {
     this.connection.on('close', (code, reason) => {
       this.logger.info(`Room ${this.roomId} Closed with ${code} ${reason}.`)
       if (this.shouldClose !== true) {
-        this.reconnect()
+        this._reconnect()
       }
     })
     this.connection.on('heartbeatReply', (packet) => {

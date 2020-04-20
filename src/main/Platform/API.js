@@ -6,6 +6,7 @@ export class API {
   constructor () {
     this.cookies = ''
     this.csrf = ''
+    this.uid = 0
     this.createAxios()
   }
 
@@ -26,9 +27,10 @@ export class API {
     this.axios = axios.create(config)
   }
 
-  async setCookies (cookies, csrf) {
+  async setCookies (cookies, csrf, uid) {
     this.cookies = cookies
     this.csrf = csrf
+    this.uid = uid
     this.createAxios()
     return true
   }
@@ -63,15 +65,19 @@ export class API {
   }
 
   async setConfig (roomId, type, guard, medalStart, users = []) {
-    return (await this.axios.post('/av/v1/VoiceJoinAnchor/setConfig'), {
-      data: new URLSearchParams({
-        room_id: roomId,
-        type,
-        guard,
-        medal_start: medalStart,
-        users: users.concat(',')
-      })
-    }).data
+    return (await this.axios.post('/av/v1/VoiceJoinAnchor/setConfig', new URLSearchParams({
+      room_id: roomId,
+      type,
+      guard,
+      medal_start: medalStart,
+      users: users.concat(','),
+      csrf: this.csrf,
+      csrf_token: this.csrf
+    }), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })).data
   }
 
   async getWaitList (roomid) {
@@ -91,11 +97,30 @@ export class API {
     })).data
   }
 
+  async searchUser (searchUid, AnchorUid = this.uid) {
+    return (await this.axios.get('/av/v1/VoiceJoinAnchor/SearchUser', {
+      params: {
+        anchor_id: AnchorUid,
+        uid: searchUid
+      }
+    })).data
+  }
+
   async stop (roomId, voiceChannal) {
     return (await this.axios.get('/av/v1/VoiceJoinAnchor/Stop', {
       params: {
         room_id: roomId,
         voice_channal: voiceChannal
+      }
+    })).data
+  }
+
+  async getDanmuConf (roomId, platform = 'pc', player = 'web') {
+    return (await this.axios.get('/room/v1/Danmu/getConf', {
+      params: {
+        room_id: roomId,
+        platform: platform,
+        player
       }
     })).data
   }

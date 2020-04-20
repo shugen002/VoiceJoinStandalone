@@ -2,6 +2,7 @@ import { app, BrowserWindow, Menu, ipcMain } from 'electron'
 import { productName } from '../../package.json'
 import Consts from './Consts'
 import { API } from './Platform/API'
+import { DanmakuController } from './Platform/DanmakuController'
 
 // set app name
 app.name = productName
@@ -68,7 +69,8 @@ function createWindow () {
       webviewTag: true
     },
     show: false,
-    isDev: true
+    isDev: true,
+    autoHideMenuBar: true
   })
 
   // eslint-disable-next-line
@@ -233,6 +235,18 @@ ipcMain.on('devTool', () => {
   mainWindow.openDevTools()
 })
 
+const danmakuController = new DanmakuController(api, () => { return mainWindow })
+ipcMain.handle('danmaku', async (event, apiName, ...args) => {
+  if (danmakuController[apiName]) {
+    try {
+      return { code: 0, data: await danmakuController[apiName](...args) }
+    } catch (error) {
+      return { code: -2, msg: 'Unexpect Error', error }
+    }
+  } else {
+    return { code: -1, msg: 'No Such API' }
+  }
+})
 if (Consts.isDev) {
   app.on('certificate-error', (event, webContents, url, error, certificate, callbackF) => {
     event.preventDefault()
