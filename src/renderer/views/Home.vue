@@ -16,7 +16,7 @@
         </p>
         <p>用户名: {{ username }}</p>
         <p>UID: {{ uid }}</p>
-        <p>房间号: {{ roomid }}</p>
+        <p>房间号: {{ roomId }}</p>
       </div>
     </Content>
   </Layout>
@@ -45,13 +45,19 @@ export default {
       this.$router.push('login')
     },
     getUserInfo () {
-      this.$api('getUserInfo').then((data) => {
+      this.$api.getUserInfo().then((data) => {
         if (data.code === 0) {
           this.isLogined = true
           this.face = data.data.userInfo.face
           this.username = data.data.userInfo.uname
           this.uid = data.data.userInfo.uid
-          this.roomid = data.data.roomid
+          this.roomId = data.data.roomid
+          this.$store.state.App.isLogined = true
+          this.$store.state.App.face = data.data.userInfo.face
+          this.$store.state.App.username = data.data.userInfo.uname
+          this.$store.state.App.uid = data.data.userInfo.uid
+          this.$store.state.App.roomId = data.data.roomid
+          this.$danmaku.connect(this.roomId)
         } else {
           this.isLogined = false
         }

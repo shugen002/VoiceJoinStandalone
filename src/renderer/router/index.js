@@ -1,10 +1,10 @@
-
-import About from '../views/About.vue'
 import Help from '../views/Help.vue'
 import Home from '../views/Home.vue'
 import Debug from '../views/Debug.vue'
 import Login from '../views/Login.vue'
 import Rules from '../views/Rules.vue'
+import Setting from '../views/Setting.vue'
+import Phone from '../views/Phone.vue'
 
 export default function (options) {
   return {
@@ -19,9 +19,24 @@ export default function (options) {
         component: Home
       },
       {
-        path: '/about',
-        name: 'about',
-        component: About
+        path: '/login',
+        name: 'login',
+        component: Login
+      },
+      {
+        path: '/rules',
+        name: 'rules',
+        component: Rules
+      },
+      {
+        path: '/phone',
+        name: 'phone',
+        component: Phone
+      },
+      {
+        path: '/setting',
+        name: 'setting',
+        component: Setting
       },
       {
         path: '/help',
@@ -32,16 +47,6 @@ export default function (options) {
         path: '/debug',
         name: 'debug',
         component: Debug
-      },
-      {
-        path: '/login',
-        name: 'login',
-        component: Login
-      },
-      {
-        path: '/rules',
-        name: 'rules',
-        component: Rules
       },
       {
         path: '*',

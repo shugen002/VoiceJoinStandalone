@@ -20,11 +20,7 @@
             <Icon type="md-construct" />
             参与条件
           </MenuItem>
-          <MenuItem name="waitlist">
-            <Icon type="md-people" />
-            等候列表
-          </MenuItem>
-          <MenuItem name="call">
+          <MenuItem name="phone">
             <Icon type="md-call" />
             接线台
           </MenuItem>
@@ -50,11 +46,16 @@
 </template>
 
 <script>
+import AgoraMixin from './mixins/AgoraMixin'
+import DanmakuMixin from './mixins/DanmakuMixin'
 export default {
+  mixins: [AgoraMixin, DanmakuMixin],
   data: function () {
     return {
       page: 'home'
     }
+  },
+  danmaku: {
   },
   methods: {
     onSelect (name) {

@@ -8,7 +8,7 @@
 export default {
   methods: {
     onDev () {
-      window.ipcRenderer.send('devTool')
+      this.$api.devtool()
     }
   }
 }

@@ -17,7 +17,8 @@ export default {
       this.$refs.webview.addEventListener('will-navigate', () => {
         this.$refs.webview.getWebContents().session.cookies.get({ url: 'https://www.bilibili.com' }).then(cookies => {
           const csrf = cookies.find((e) => { return e.name === 'bili_jct' }).value
-          window.ipcRenderer.invoke('API', 'setCookies', cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';'), csrf).then(console.log)
+          const uid = cookies.find((e) => { return e.name === 'DedeUserID' }).value
+          this.$api.setCookies(cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';'), csrf, uid).then(console.log)
           this.$router.push('home')
         }).catch((err) => {
           console.log(err)
