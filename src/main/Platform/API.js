@@ -97,6 +97,18 @@ export class API {
     })).data
   }
 
+  // type=2 只拒绝， type=1 拒绝并封禁24小时，期间无法连麦
+  async rejectUser (roomId, uid, type = 2, category = 1) {
+    return (await this.axios.get('/av/v1/VoiceJoinAnchor/Reject', {
+      params: {
+        room_id: roomId,
+        uid,
+        type,
+        category
+      }
+    }))
+  }
+
   async searchUser (searchUid, AnchorUid = this.uid) {
     return (await this.axios.get('/av/v1/VoiceJoinAnchor/SearchUser', {
       params: {

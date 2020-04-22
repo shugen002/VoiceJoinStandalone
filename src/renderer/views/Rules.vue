@@ -61,12 +61,53 @@
         </div>
       </i-col>
       <i-col span="12">
-        <div>
-          <AutoComplete v-model="addUserInput" placeholder="添加用户UID" />
-          <Table height="200" :columns="userColumns" :data="users" />
+        <div v-if="type=='3'&&roomStatus">
+          <Input
+            v-model="addUserInput"
+            search
+            enter-button="添加"
+            placeholder="用户UID"
+            type="number"
+            @on-enter="searchAndPickUp"
+            @on-search="searchAndPickUp"
+          />
+          <Table
+            height="220"
+            :columns="userColumns"
+            :data="users"
+            size="small"
+          >
+            <template slot="uid" slot-scope="{ row }">
+              <div style="margin:0 -8px">
+                {{ row.uid }}
+              </div>
+            </template>
+            <template slot="user" slot-scope="{ row }">
+              <div class="user">
+                <img
+                  :src="row.head_pic"
+                  referrerpolicy="no-referrer"
+                  class="face"
+                >
+                <div>
+                  <p><span>{{ row.name }}</span></p>
+                  <p><span>UL {{ row.user_level }}</span> <span v-if="row.medal_name && row.medal_level">{{ row.medal_name }} {{ row.medal_level }}</span></p>
+                </div>
+              </div>
+            </template>
+            <template slot="action" slot-scope="{ row, index }">
+              <Button type="error" size="small" @click="remove(index)">
+                <Icon type="md-close" />
+              </Button>
+            </template>
+          </Table>
         </div>
       </i-col>
     </Row>
+    <Divider />
+    <Button @click="saveConfig">
+      保存
+    </Button>
   </div>
 </template>
 <style scoped>
@@ -75,6 +116,15 @@
 }
 .rules{
   margin:4px;
+}
+.face{
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+}
+.user{
+  display: flex;
+  margin:0 -5px
 }
 </style>
 
@@ -87,15 +137,25 @@ export default {
       rootStatus: false,
       roomStatus: false,
       minGuardLevel: '3',
-      medaminMedalLevelStart: 1,
+      minMedalLevel: 1,
       type: '0',
       users: [],
       addUserInput: '',
       userColumns: [{
         title: 'UID',
-        key: 'uid'
-      }, { title: '用户名', key: 'name' }
-      ]
+        slot: 'uid',
+        width: '100',
+        align: 'center'
+      },
+      {
+        title: '用户',
+        slot: 'user'
+      }, {
+        title: '移除',
+        slot: 'action',
+        width: '64'
+      }],
+      possibleUsers: []
     }
   },
   created () {
@@ -122,9 +182,34 @@ export default {
           this.minGuardLevel = e.data.guard + ''
           this.minMedalLevel = e.data.medal_start
           this.users = e.data.users
-          // console.log(e)
         }
       })
+    },
+    searchUser (value) {
+      this.$api.searchUser(value).then((res) => {
+        if (res.code === 0) {
+          this.possibleUsers = [res.data]
+        }
+      })
+    },
+    pickUp () {
+      this.users.push(this.possibleUsers[0])
+    },
+    searchAndPickUp () {
+      this.$api.searchUser(this.addUserInput).then((res) => {
+        this.users.push(res.data)
+      })
+      this.addUserInput = ''
+    },
+    remove (index) {
+      this.users.splice(index, 1)
+    },
+    saveConfig () {
+      this.$api.setConfig(this.roomId, this.type, this.minGuardLevel, this.minMedalLevel, this.users.map((e) => { return e.uid }))
+        .then((res) => {
+          if (res.code === 0) {}
+          this.syncConfig()
+        })
     }
   }
 }

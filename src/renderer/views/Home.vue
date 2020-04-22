@@ -33,7 +33,7 @@ export default {
       isLogined: false,
       username: '',
       uid: 0,
-      roomid: 0,
+      roomId: 0,
       face: ''
     }
   },
@@ -52,11 +52,8 @@ export default {
           this.username = data.data.userInfo.uname
           this.uid = data.data.userInfo.uid
           this.roomId = data.data.roomid
-          this.$store.state.App.isLogined = true
-          this.$store.state.App.face = data.data.userInfo.face
-          this.$store.state.App.username = data.data.userInfo.uname
-          this.$store.state.App.uid = data.data.userInfo.uid
-          this.$store.state.App.roomId = data.data.roomid
+          this.$agora.uid = data.data.userInfo.uid
+          this.$store.commit({ type: 'syncUserInfo', username: this.username, uid: this.uid, roomId: this.roomId, face: this.face })
           this.$danmaku.connect(this.roomId)
         } else {
           this.isLogined = false

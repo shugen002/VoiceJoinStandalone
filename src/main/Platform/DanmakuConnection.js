@@ -13,11 +13,11 @@ export class DanmakuConnection extends EventEmitter {
       wss: true,
       version: 2,
       authInfo: {
-        uid: uid,
-        roomid: roomId,
+        uid: parseInt(uid),
+        roomid: parseInt(roomId),
         protover: 2,
         platform: 'web',
-        clientver: '1.10.6',
+        clientver: '1.11.0',
         type: 2,
         key: conf.token
       }

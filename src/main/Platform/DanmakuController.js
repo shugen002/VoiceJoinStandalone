@@ -26,7 +26,7 @@ export class DanmakuController {
   listen () {
     this.connection.on('needReconnect', () => {
       this.api.getDanmuConf(this.roomId).then((res) => {
-        if (res.data.code === 0) {
+        if (res.code === 0) {
           this.connection.reconnect(res.data)
         }
       })
