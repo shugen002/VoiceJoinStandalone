@@ -1,5 +1,5 @@
 var ipcRenderer = require('electron').ipcRenderer
-
+window.ipcRenderer = ipcRenderer
 class API {
   constructor () {
     const apilist = ['setCookies', 'getUserInfo', 'getRoomCan', 'setRoomSwitch', 'getConfig', 'setConfig', 'getWaitList', 'pickUser', 'rejectUser', 'searchUser', 'stop']

@@ -2,7 +2,7 @@ import axios from 'axios'
 import https from 'https'
 import Consts from '../Consts'
 
-export class API {
+export class WebAPI {
   constructor () {
     this.cookies = ''
     this.csrf = ''
