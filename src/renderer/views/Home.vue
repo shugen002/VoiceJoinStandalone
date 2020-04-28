@@ -45,21 +45,29 @@ export default {
       this.$router.push('login')
     },
     getUserInfo () {
-      this.$api.getUserInfo().then((data) => {
-        if (data.code === 0) {
+      this.$api.getInfo().then((res) => {
+        console.log(res)
+        if (res.code === 0) {
           this.isLogined = true
-          this.face = data.data.userInfo.face
-          this.username = data.data.userInfo.uname
-          this.uid = data.data.userInfo.uid
-          this.roomId = data.data.roomid
-          this.$agora.uid = data.data.userInfo.uid
+          this.face = res.data.face
+          this.username = res.data.uname
+          this.uid = res.data.uid
+          this.roomId = res.data.room_id
+          this.$agora.uid = res.data.uid
           this.$store.commit({ type: 'syncUserInfo', username: this.username, uid: this.uid, roomId: this.roomId, face: this.face })
           this.$danmaku.connect(this.roomId)
+        } else if (res.code !== undefined) {
+          this.isLogined = false
+          this.$Message.error(`错误：${res.code}，${res.message || res.msg}`)
         } else {
           this.isLogined = false
+          this.$Message.error('未知错误，请到控制台查看。')
+          console.log(res)
         }
       }).catch((error) => {
-        console.log(error)
+        if (error.code === -2) {
+          this.$Message.error('未知错误，请到控制台查看错误。')
+        }
       })
     }
   }

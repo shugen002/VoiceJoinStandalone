@@ -1,8 +1,8 @@
 var ipcRenderer = require('electron').ipcRenderer
-window.ipcRenderer = ipcRenderer
+
 class API {
   constructor () {
-    const apilist = ['setCookies', 'getUserInfo', 'getRoomCan', 'setRoomSwitch', 'getConfig', 'setConfig', 'getWaitList', 'pickUser', 'rejectUser', 'searchUser', 'stop']
+    const apilist = ['getKey', 'login', 'getInfo', 'getAreaList', 'getMyChooseArea', 'getCoverList', 'setCover', 'updateRoomInfo', 'updateRoomTitle', 'updateRoomArea', 'startLive', 'stopLive', 'getRoomCan', 'setRoomSwitch', 'getConfig', 'setConfig', 'getWaitList', 'pickUser', 'rejectUser', 'searchUser', 'stopVoiceJoin', 'getDanmuConf']
     apilist.forEach(name => {
       this[name] = (...args) => {
         return this.requestAPI(name, ...args)

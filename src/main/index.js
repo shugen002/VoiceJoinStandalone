@@ -1,7 +1,6 @@
 import { app, BrowserWindow, Menu, ipcMain } from 'electron'
 import { productName } from '../../package.json'
 import Consts from './Consts'
-import { WebAPI } from './Platform/WebAPI'
 import { API } from './Platform/API'
 import { DanmakuController } from './Platform/DanmakuController'
 
@@ -218,22 +217,9 @@ function setMenu () {
   Menu.setApplicationMenu(menu)
 }
 
-const webAPI = new WebAPI()
 const api = new API()
 
 ipcMain.handle('API', async (event, apiName, ...args) => {
-  if (webAPI[apiName]) {
-    try {
-      return { code: 0, data: await webAPI[apiName](...args) }
-    } catch (error) {
-      return { code: -2, msg: 'Unexpect Error', error }
-    }
-  } else {
-    return { code: -1, msg: 'No Such API' }
-  }
-})
-
-ipcMain.handle('API2', async (event, apiName, ...args) => {
   if (api[apiName]) {
     try {
       return { code: 0, data: await api[apiName](...args) }
@@ -249,7 +235,7 @@ ipcMain.on('devTool', () => {
   mainWindow.openDevTools()
 })
 
-const danmakuController = new DanmakuController(webAPI, () => { return mainWindow })
+const danmakuController = new DanmakuController(api, () => { return mainWindow })
 ipcMain.handle('danmaku', async (event, apiName, ...args) => {
   if (danmakuController[apiName]) {
     try {

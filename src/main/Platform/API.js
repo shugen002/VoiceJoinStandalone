@@ -24,7 +24,7 @@ export class API {
       },
       httpsAgent: (Consts.isDev ? new https.Agent({ rejectUnauthorized: false }) : undefined)
     })
-    this.loginInfo = {}
+    this.loginInfo = null
   }
 
   /**
@@ -62,6 +62,9 @@ export class API {
    * 获取用户直播信息
    */
   async getInfo () {
+    if (this.loginInfo === null) {
+      return { code: -101, message: '账号未登录', ttl: 1 }
+    }
     const data = {
       access_key: this.accessKey,
       uId: this.loginInfo.token_info.mid
@@ -143,20 +146,6 @@ export class API {
     })
   }
 
-  async updateRoomTag (roomId, tags) {
-    return this.updateRoomInfo({
-      room_id: roomId,
-      tags: tags.join(',')
-    })
-  }
-
-  async updateRoomBrief (roomId, description) {
-    return this.updateRoomInfo({
-      room_id: roomId,
-      description
-    })
-  }
-
   async updateRoomArea (roomId, areaId) {
     return this.updateRoomInfo({
       room_id: roomId,
@@ -172,6 +161,14 @@ export class API {
       type
     }
     return (await this.axios.post('/room/v1/Room/startLive', sign(data, appkey, secret, platform))).data
+  }
+
+  async stopLive (roomId) {
+    const data = {
+      access_key: this.accessKey,
+      room_id: roomId
+    }
+    return (await this.axios.post('/room/v1/Room/stopLive', sign(data, appkey, secret, platform))).data
   }
 
   async getRoomCan (roomId) {
@@ -260,7 +257,7 @@ export class API {
     })).data
   }
 
-  async stop (roomId, voiceChannal) {
+  async stopVoiceJoin (roomId, voiceChannal) {
     return (await this.axios.get('/av/v1/VoiceJoinAnchor/Stop', {
       params: {
         room_id: roomId,
