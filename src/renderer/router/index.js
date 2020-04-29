@@ -5,6 +5,7 @@ import Login from '../views/Login.vue'
 import Rules from '../views/Rules.vue'
 import Setting from '../views/Setting.vue'
 import Phone from '../views/Phone.vue'
+import Live from '../views/Live.vue'
 
 export default function (options) {
   return {
@@ -22,6 +23,11 @@ export default function (options) {
         path: '/login',
         name: 'login',
         component: Login
+      },
+      {
+        path: '/live',
+        name: 'live',
+        component: Live
       },
       {
         path: '/rules',

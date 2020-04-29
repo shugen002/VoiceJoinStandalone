@@ -2,6 +2,7 @@ import axios from 'axios'
 import crypto from 'crypto'
 import https from 'https'
 import Consts from '../Consts'
+import { app } from 'electron'
 
 const appkey = '1d8b6e7d45233436'
 const secret = '560c52ccd288fed045859ed18bffd973'
@@ -17,7 +18,7 @@ export class API {
       baseURL: 'https://api.live.bilibili.com',
       timeout: 5000,
       headers: {
-        'User-Agent': 'User-Agent: Mozilla/5.0 BiliDroid/5.58.0 (bbcallen@gmail.com) os/android model/Unknown mobi_app/android build/5580400 channel/master innerVer/5580400 osVer/9 network/2',
+        'User-Agent': 'Mozilla/5.0 BiliDroid/5.58.0 (bbcallen@gmail.com) os/android model/Unknown mobi_app/android build/5580400 channel/master innerVer/5580400 osVer/9 network/2',
         'APP-KEY': 'android',
         Buvid: RandomID(37).toLocaleUpperCase(),
         env: 'prod'
@@ -129,14 +130,36 @@ export class API {
       sign(data, appkey, secret, platform))).data
   }
 
+  async getLiverCustomTags (areaId, parentAreaId) {
+    const data = {
+      access_key: this.accessKey,
+      area_id: areaId,
+      parent_area_id: parentAreaId
+    }
+    return (await this.axios.get('/room/v3/Area/getLiverCustomTags', {
+      params: sign(data, appkey, secret, platform)
+    })).data
+  }
+
+  async setLiverCustomTags (roomId, tagId) {
+    const data = {
+      access_key: this.accessKey,
+      room_id: roomId,
+      tag_id: tagId
+    }
+    return (await this.axios.get('/room/v3/Area/setLiverCustomTag', {
+      params: sign(data, appkey, secret, platform)
+    })).data
+  }
+
   /**
    * 更新房间信息
    * @param {object} data 数据
    */
   async updateRoomInfo (data) {
     data.access_key = this.accessKey
-    return (await this.axios.post('/room/v1/Room/update',
-      sign(data, appkey, secret, platform))).data
+    return (await this.axios.post('/room/v1/Room/update', sign(data, appkey, secret, platform)
+    )).data
   }
 
   async updateRoomTitle (roomId, title) {
@@ -146,8 +169,9 @@ export class API {
     })
   }
 
-  async updateRoomArea (roomId, areaId) {
+  async updateRoomArea (roomId, parentAreaId, areaId) {
     return this.updateRoomInfo({
+      parent_area_id: parentAreaId,
       room_id: roomId,
       area_id: areaId
     })
@@ -238,41 +262,59 @@ export class API {
 
   // type=2 只拒绝， type=1 拒绝并封禁24小时，期间无法连麦
   async rejectUser (roomId, uid, type = 2, category = 1) {
+    const data = {
+      access_key: this.accessKey,
+      room_id: roomId,
+      uid,
+      type,
+      category
+    }
     return (await this.axios.get('/av/v1/VoiceJoinAnchor/Reject', {
-      params: {
-        room_id: roomId,
-        uid,
-        type,
-        category
-      }
+      params: sign(data, appkey, secret, platform)
     }))
   }
 
-  async searchUser (searchUid, AnchorUid = this.uid) {
+  async searchUser (searchUid, AnchorUid) {
+    const data = {
+      access_key: this.accessKey,
+      anchor_id: AnchorUid,
+      uid: searchUid
+    }
     return (await this.axios.get('/av/v1/VoiceJoinAnchor/SearchUser', {
-      params: {
-        anchor_id: AnchorUid,
-        uid: searchUid
-      }
+      params: sign(data, appkey, secret, platform)
     })).data
   }
 
   async stopVoiceJoin (roomId, voiceChannal) {
+    const data = {
+      access_key: this.accessKey,
+      room_id: roomId,
+      voice_channal: voiceChannal
+    }
     return (await this.axios.get('/av/v1/VoiceJoinAnchor/Stop', {
-      params: {
-        room_id: roomId,
-        voice_channal: voiceChannal
-      }
+      params: sign(data, appkey, secret, platform)
     })).data
   }
 
   async getDanmuConf (roomId, platform = 'pc', player = 'web') {
+    const data = {
+      access_key: this.accessKey,
+      room_id: roomId,
+      platform: platform,
+      player
+    }
     return (await this.axios.get('/room/v1/Danmu/getConf', {
-      params: {
-        room_id: roomId,
-        platform: platform,
-        player
-      }
+      params: sign(data, appkey, secret, platform)
+    })).data
+  }
+
+  async getStream (roomId) {
+    const data = {
+      access_key: this.accessKey,
+      room_id: roomId
+    }
+    return (await this.axios.get('/live_stream/v1/StreamList/get_stream_by_roomId', {
+      params: sign(data, appkey, secret, platform)
     })).data
   }
 }

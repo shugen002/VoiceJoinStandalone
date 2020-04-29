@@ -16,6 +16,10 @@
             <Icon type="md-home" />
             首页
           </MenuItem>
+          <MenuItem name="live">
+            <Icon type="md-play" />
+            直播
+          </MenuItem>
           <MenuItem name="rules">
             <Icon type="md-construct" />
             参与条件
@@ -44,6 +48,19 @@
     </Layout>
   </div>
 </template>
+
+<style>
+div::-webkit-scrollbar {
+  width: 8px;
+}
+div {
+  scrollbar-width: thin;
+}
+div::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.432);
+  border-radius: 4px;
+}
+</style>
 
 <script>
 import AgoraMixin from './mixins/AgoraMixin'
