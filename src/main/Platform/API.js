@@ -2,13 +2,12 @@ import axios from 'axios'
 import crypto from 'crypto'
 import https from 'https'
 import Consts from '../Consts'
-import { app } from 'electron'
 
-const appkey = '1d8b6e7d45233436'
-const secret = '560c52ccd288fed045859ed18bffd973'
-const platform = 'android'
-const loginSecretkey = '60698ba2f68e01ce44738920a0ffe768'
-const loginAppKey = 'bca7e84c2d947ac6'
+const appkey = '37207f2beaebf8d7'
+const secret = 'e988e794d4d4b6dd43bc0e89d6e90c43'
+const platform = 'android_link'
+const loginSecretkey = 'e988e794d4d4b6dd43bc0e89d6e90c43'
+const loginAppKey = '37207f2beaebf8d7'
 
 export class API {
   constructor () {
@@ -18,10 +17,10 @@ export class API {
       baseURL: 'https://api.live.bilibili.com',
       timeout: 5000,
       headers: {
-        'User-Agent': 'Mozilla/5.0 BiliDroid/5.58.0 (bbcallen@gmail.com) os/android model/Unknown mobi_app/android build/5580400 channel/master innerVer/5580400 osVer/9 network/2',
-        'APP-KEY': 'android',
-        Buvid: RandomID(37).toLocaleUpperCase(),
-        env: 'prod'
+        'User-Agent': 'Mozilla/5.0 BiliLiveDroid/2.0.0 bililive',
+        // 'APP-KEY': 'android',
+        Buvid: RandomID(37)
+        // env: 'prod'
       },
       httpsAgent: (Consts.isDev ? new https.Agent({ rejectUnauthorized: false }) : undefined)
     })
@@ -45,10 +44,13 @@ export class API {
    * @param {string} pubkey pubkey
    * @param {string} hash hash
    */
-  async login (username, password, pubkey, hash) {
+  async login (username, password, pubkey, hash, validate) {
     const data = {
       username,
       password: RSAPassword(password, pubkey, hash)
+    }
+    if (validate) {
+      data.validate = validate
     }
     const loginRes = (await this.axios.post('https://passport.bilibili.com/api/v3/oauth2/login',
       sign(data, loginAppKey, loginSecretkey, platform))).data
@@ -177,11 +179,12 @@ export class API {
     })
   }
 
-  async startLive (roomId, areaId, type = 1) {
+  async startLive (roomId, areaId, type = 2) {
     const data = {
       access_key: this.accessKey,
       area_v2: areaId,
       room_id: roomId,
+      build: 4700011,
       type
     }
     return (await this.axios.post('/room/v1/Room/startLive', sign(data, appkey, secret, platform))).data
