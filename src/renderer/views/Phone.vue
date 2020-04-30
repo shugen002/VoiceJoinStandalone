@@ -14,6 +14,7 @@
         <p>{{ currentUser.medal_level }}</p>
         <p>{{ currentUser.medal_color }}</p>
         <Button @click="getWaitList" />
+        <Button @click="leave" />
       </div>
     </i-col>
     <i-col span="12">
@@ -167,6 +168,7 @@ export default {
       this.$api.pickUser(this.roomId, user.uid).then((res) => {
         if (res.code === 0) {
           this.$agora.join(res.data.channel, this.uid + '', user.uid + '')
+          this.getWaitList()
           console.log(res)
         } else {
           console.log(res)
@@ -182,18 +184,18 @@ export default {
       })
     },
     ban (user) {
-      this.$api.rejectUser(this.roomId, user.uid, 1), then((res) => {
+
+    },
+    realBan (user) {
+      this.$api.rejectUser(this.roomId, user.uid, 1).then((res) => {
         if (res.code === 0) {
           this.$Message.success('封禁成功，24小时内无法连麦')
           this.getWaitList()
         }
       })
     },
-    stop () {
-
-    },
-    realBan (user) {
-
+    leave () {
+      this.$agora.leave()
     }
 
   }

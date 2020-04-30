@@ -40,8 +40,17 @@
         </div>
       </Card>
     </div>
-    <Modal v-model="verification" title="验证码">
-      <webview ref="webview" :src="geetest" />
+    <Modal
+      v-model="verification"
+      width="280"
+      :closable="false"
+      :footer-hide="true"
+    >
+      <webview
+        ref="webview"
+        style="height:250px;width:250px"
+        :src="geetest"
+      />
     </Modal>
   </div>
 </template>
@@ -71,9 +80,12 @@
   display: flex;
   flex-direction: column-reverse;
 }
+
 </style>
 <script>
+import CaptchaMixin from '../mixins/CaptchaMixin'
 export default {
+  mixins: [CaptchaMixin],
   data: function () {
     return {
       username: '',
@@ -84,22 +96,40 @@ export default {
       verification: false
     }
   },
-  created () {
-    this.$nextTick(() => {
-      this.$refs.webview.addEventListener('will-navigate', () => {
-        this.login()
-      })
-    })
+  captcha: {
+    postMessage (id, item, ...args) {
+      if (item && item.method) {
+        switch (item.method) {
+          case 'global.getAllSupport':
+            this.$captcha.send(id, JSON.parse(item.data).callbackId, ['secure.captcha', 'secure.closeCaptcha', 'secure.imageCaptcha', 'global.import', 'global.getAllSupport'])
+            break
+          case 'secure.captcha':
+            var data = JSON.parse(item.data)
+            this.login(true, data.challenge, data.seccode, data.validate)
+            this.verification = false
+            break
+          case 'secure.closeCaptcha':
+            this.verification = false
+            break
+          default:
+            break
+        }
+      }
+    }
   },
   methods: {
-    login () {
+    login (afterkey = false, challenge, seccode, validate) {
       this.loading = true
       this.appendLogs('拉取密钥')
       this.$api.getKey().then((res) => {
         if (res.code === 0 && res.data.hash && res.data.key) {
           this.appendLogs('拉取密钥成功')
           this.appendLogs('发送登录请求')
-          this.$api.login(this.username, this.password, res.data.key, res.data.hash)
+          var args = [this.username, this.password, res.data.key, res.data.hash]
+          if (afterkey) {
+            args.push(challenge, seccode, validate)
+          }
+          this.$api.login(...args)
             .then((res) => {
               if (res.code === 0) {
                 this.appendLogs('登录成功')
@@ -111,43 +141,32 @@ export default {
                 this.verification = true
                 this.geetest = res.data.url
               } else if (res.code !== undefined) {
-                this.loading = false
-                this.$Message.error(`错误：${res.code}，${res.message || res.msg}`)
-                this.appendLogs(`错误：${res.code}，${res.message || res.msg}`)
-                console.log(res)
+                this.errorCodeHandle(res)
               } else {
-                this.isLogined = false
-                this.appendLogs('未知错误，请到控制台查看。')
-                this.$Message.error('未知错误')
-                console.log(res)
+                this.errorHandle(res)
               }
-            }).catch(error => {
-              this.loading = false
-              this.appendLogs('未知错误，请到控制台查看。')
-              this.$Message.error('未知错误')
-              console.log(error)
-            })
+            }).catch(this.errorHandle)
         } else if (res.code !== undefined) {
-          this.loading = false
-          this.$Message.error(`错误：${res.code}，${res.message || res.msg}`)
-          this.appendLogs(`错误：${res.code}，${res.message || res.msg}`)
-          console.log(res)
+          this.errorCodeHandle(res)
         } else {
-          this.isLogined = false
-          this.appendLogs('未知错误，请到控制台查看。')
-          this.$Message.error('未知错误')
-          console.log(res)
+          this.errorHandle(res)
         }
-      }).catch(error => {
-        this.loading = false
-        this.appendLogs('未知错误，请到控制台查看。')
-        this.$Message.error('未知错误')
-        console.log(error)
-      })
+      }).catch(this.errorHandle)
     },
     appendLogs () {
-      console.log(...arguments)
       this.logs.unshift(...arguments)
+    },
+    errorHandle (...args) {
+      this.loading = false
+      this.appendLogs('未知错误，请到控制台查看。')
+      this.$Message.error('未知错误')
+      console.log(...args)
+    },
+    errorCodeHandle (res) {
+      this.loading = false
+      this.$Message.error(`错误：${res.code}，${res.message || res.msg}`)
+      this.appendLogs(`错误：${res.code}，${res.message || res.msg}`)
+      console.log(res)
     }
   }
 }

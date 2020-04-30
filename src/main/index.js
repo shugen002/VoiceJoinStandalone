@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, ipcMain } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain, webContents } from 'electron'
 import { productName } from '../../package.json'
 import Consts from './Consts'
 import { API } from './Platform/API'
@@ -59,6 +59,8 @@ function createWindow () {
     height: 540,
     minWidth: 960,
     minHeight: 540,
+    maximizable: false,
+    resizable: false,
     // useContentSize: true,
     webPreferences: {
       devTools: true,
@@ -92,6 +94,16 @@ function createWindow () {
 
   mainWindow.on('closed', () => {
     console.log('\nApplication exiting...')
+  })
+
+  mainWindow.webContents.on('will-attach-webview', (e, webPerf, params) => {
+    webPerf.preload = Consts.WEBVIEW_PRELOAD_SCRIPT
+    console.log('here is a webview will attach')
+  })
+  mainWindow.webContents.on('did-attach-webview', (e, webContent) => {
+    if (Consts.isDev) {
+      webContent.openDevTools({ mode: 'detach' })
+    }
   })
 }
 
@@ -247,6 +259,18 @@ ipcMain.handle('danmaku', async (event, apiName, ...args) => {
     return { code: -1, msg: 'No Such API' }
   }
 })
+
+ipcMain.on('captcha', async (event, method, ...args) => {
+  mainWindow.webContents.send('captcha', event.sender.id, method, ...args)
+})
+ipcMain.handle('captchaCallback', async (event, id, ...args) => {
+  var target = webContents.fromId(id)
+  if (target) {
+    target.send('captchaCallback', ...args)
+  }
+})
+
+// cancel certificate error when using fiddler in debug
 if (Consts.isDev) {
   app.on('certificate-error', (event, webContents, url, error, certificate, callbackF) => {
     event.preventDefault()

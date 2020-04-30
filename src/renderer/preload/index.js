@@ -64,5 +64,19 @@ class Danmaku {
     return ipcRenderer.invoke('danmaku', 'connect', roomid)
   }
 }
+class Captcha {
+  constructor () {
+    this.onmessage = () => {}
+
+    ipcRenderer.on('captcha', (event, id, method, ...args) => {
+      this.onmessage(method, id, ...args)
+    })
+  }
+
+  send (id, ...args) {
+    return ipcRenderer.invoke('captchaCallback', id, ...args)
+  }
+}
+window._Captcha = new Captcha()
 window._API = new API()
 window._Danmaku = new Danmaku()

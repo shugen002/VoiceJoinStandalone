@@ -44,10 +44,16 @@ export class API {
    * @param {string} pubkey pubkey
    * @param {string} hash hash
    */
-  async login (username, password, pubkey, hash, validate) {
+  async login (username, password, pubkey, hash, challenge, seccode, validate) {
     const data = {
       username,
       password: RSAPassword(password, pubkey, hash)
+    }
+    if (challenge) {
+      data.challenge = challenge
+    }
+    if (seccode) {
+      data.seccode = encodeURIComponent(seccode)
     }
     if (validate) {
       data.validate = validate
@@ -350,6 +356,9 @@ function sign (data, appkey, secret, platform) {
   const finalData = {}
   if (data.password) {
     data.password = decodeURIComponent(data.password)
+  }
+  if (data.seccode) {
+    data.seccode = decodeURIComponent(data.seccode)
   }
   Object.keys(data).sort().forEach((key) => {
     finalData[key] = data[key]

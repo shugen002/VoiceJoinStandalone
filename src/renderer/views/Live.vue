@@ -227,7 +227,7 @@ export default {
       })
     },
     startLive () {
-      this.$api.startLive(this.roomId, this.area).then((res) => {
+      this.$api.startLive(this.roomId, this.area, 2).then((res) => {
         this.getUserInfo()
         if (res.code === 0) {
           this.setTag(this.lastSelectTag)

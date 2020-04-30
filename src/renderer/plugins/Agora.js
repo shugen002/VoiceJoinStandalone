@@ -12,7 +12,9 @@ class AgoraController extends EventEmitter {
     this.published = false
     this.localStream = null
     this.remoteStreams = []
+    this.createdElememts = []
     this.localSoundTrack = null
+    this.getRemoteAudio = false
     this.params = {}
     this.currentChannel = ''
     this.uid = 0
@@ -36,14 +38,25 @@ class AgoraController extends EventEmitter {
       this.emit('stream-added', evt)
       console.log('stream-added remote-uid: ', id)
     })
-    this.client.on('stream-subscribed', function (evt) {
+    this.client.on('stream-subscribed', (evt) => {
       var remoteStream = evt.stream
+      if (remoteStream.hasAudio()) {
+        this.playStream(remoteStream)
+      }
       var id = remoteStream.getId()
-      this.playStream(remoteStream)
       this.remoteStreams.push(remoteStream)
       this.emit('stream-subscribed', evt)
       console.log('stream-subscribed remote-uid: ', id)
     })
+    this.client.on('stream-updated', (evt) => {
+      if (evt.stream.id === this.targetUid) {
+        if (!this.getRemoteAudio && evt.stream.hasAudio()) {
+          this.getRemoteAudio = true
+          this.playStream(evt.stream)
+        }
+      }
+    })
+
     this.client.on('stream-removed', function (evt) {
       var remoteStream = evt.stream
       var id = remoteStream.getId()
@@ -55,7 +68,13 @@ class AgoraController extends EventEmitter {
     this.client.on('connected', () => {
       this.emit('connected')
       if (this.localSoundTrack == null) {
-        this.createLocalInputTrack().then(this.createLocalStream).then(this.publish)
+        this.createLocalInputTrack().then(() => {
+          return this.createLocalStream()
+        }).then(() => {
+          return this.initLocalStream()
+        }).then(() => {
+          return this.publish()
+        })
       }
     })
     this.client.on('peer-leave', (evt) => {
@@ -65,7 +84,7 @@ class AgoraController extends EventEmitter {
     })
     this.client.on('peer-online', (evt) => {
       if (evt.uid === this.targetUid) {
-        this.emit('peer-leave')
+        this.emit('peer-online')
       }
     })
     this.client.on('connection-state-change', (evt) => {
@@ -79,6 +98,7 @@ class AgoraController extends EventEmitter {
     if (this.joined) {
       throw (new Error('Already Joined'))
     } else {
+      this.getRemoteAudio = false
       this.targetUid = targetUid
       return new Promise((resolve, reject) => {
         this.client.join(null, channel, uid, (...args) => {
@@ -103,14 +123,17 @@ class AgoraController extends EventEmitter {
         this.localSoundTrack = null
         this.targetUid = 0
         this.currentChannel = ''
+        this.getRemoteAudio = false
+        this.createdElememts.forEach((e) => { e.remove() })
+        this.createdElememts = []
         resolve(...args)
       }, reject)
     })
   }
 
-  publish (stream) {
+  publish () {
     return new Promise((resolve, reject) => {
-      this.client.publish(stream, (...args) => {
+      this.client.publish(this.localStream, (...args) => {
         this.published = true
         resolve(...args)
       }, reject)
@@ -130,6 +153,12 @@ class AgoraController extends EventEmitter {
     return this.localStream
   }
 
+  async initLocalStream () {
+    return new Promise((resolve, reject) => {
+      this.localStream.init(resolve, reject)
+    })
+  }
+
   async createLocalInputTrack () {
     this.localSoundTrack = (await navigator.mediaDevices.getUserMedia({ video: false, audio: { deviceId: this.audioInputDevice } })).getAudioTracks()[0]
     return true
@@ -144,6 +173,7 @@ class AgoraController extends EventEmitter {
     element.id = 'remote_video_' + id
     element.srcObject = new MediaStream([stream.getAudioTrack()])
     element.play().then(console.log).catch(console.log)
+    this.createdElememts.push(element)
   }
 
   stopStream (stream) {

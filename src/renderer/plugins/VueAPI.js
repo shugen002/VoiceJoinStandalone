@@ -7,5 +7,10 @@ export default {
     window._Danmaku.onmessage = (...args) => {
       window._Danmaku.event.emit(...args)
     }
+    Vue.prototype.$captcha = window._Captcha
+    window._Captcha.event = new EventEmmitter()
+    window._Captcha.onmessage = (...args) => {
+      window._Captcha.event.emit(...args)
+    }
   }
 }
