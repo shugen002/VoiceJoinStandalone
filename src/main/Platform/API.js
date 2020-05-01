@@ -307,13 +307,18 @@ export class API {
 
   async getDanmuConf (roomId, platform = 'pc', player = 'web') {
     const data = {
-      access_key: this.accessKey,
       room_id: roomId,
       platform: platform,
       player
     }
     return (await this.axios.get('/room/v1/Danmu/getConf', {
-      params: sign(data, appkey, secret, platform)
+      params: new URLSearchParams(data),
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36',
+        Origin: 'https://live.bilibili.com',
+        Referer: 'https://live.bilibili.com',
+        Cookie: this.loginInfo.cookie_info.cookies.map((e) => { return e.name_jct + '=' + e.value }).join(';')
+      }
     })).data
   }
 
