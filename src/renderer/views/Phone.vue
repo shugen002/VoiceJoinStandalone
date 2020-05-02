@@ -109,7 +109,6 @@
   width: 100%;
   height: 100%;
   filter: blur(25px);
-  pointer-events: ;
 }
 .calling{
   width: 100%;
@@ -125,9 +124,7 @@
   align-items: center;
 
 }
-.waiting >.clock{
 
-}
 </style>
 
 <script>
@@ -156,7 +153,7 @@ export default {
           order: 0
         },
         {
-          uid: 178820108,
+          uid: 178820104,
           user_msg: '连麦嘛？很甜的那种。',
           create_at: 1587464335,
           user_name: '只是一个搬运工',
@@ -170,7 +167,7 @@ export default {
           order: 0
         },
         {
-          uid: 178820108,
+          uid: 178820103,
           user_msg: '连麦嘛？很甜的那种。',
           create_at: 1587464335,
           user_name: '只是一个搬运工',
@@ -184,7 +181,7 @@ export default {
           order: 0
         },
         {
-          uid: 178820108,
+          uid: 178820102,
           user_msg: '连麦嘛？很甜的那种。',
           create_at: 1587464335,
           user_name: '只是一个搬运工',
@@ -198,7 +195,7 @@ export default {
           order: 0
         },
         {
-          uid: 178820108,
+          uid: 178820101,
           user_msg: '连麦嘛？很甜的那种。',
           create_at: 1587464335,
           user_name: '只是一个搬运工',
