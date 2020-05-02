@@ -2,16 +2,39 @@
   <div class="container">
     <div class="item">
       <div class="phone">
-        <div class="background">
-          <div style="position:absolute;width:50px;height:50px;top:200px;left:30px;background-color:red;border-radius:25px"></div>
+        <div class="background" :style="isJoined ? 'background-color:#387b4b;' : 'animation:ani-bg 100s infinite;'">
+          <div style="filter: blur(180px);width:100%;height:100%;background-color:white;opacity:.35;"></div>
         </div>
-        <div v-if="isJoined" class="calling"></div>
-        <div v-else class="waiting">
-          <div class="time">
-            19点54分
+        <div class="callui">
+          <div class="status">
+            <img :src="currentUser.head_pic" class="face" :style="isJoined ? '' : 'transform:scale(0,0);'">
+            <p style="font-size:72px;letter-spacing:4px;">
+              <!--TODO:Time-->
+              {{ isJoined ? "0:00" : dateTime.time }}
+            </p>
+            <transition name="fade" mode="out-in">
+              <p v-if="isJoined" key="isJoined" style="font-size:18px;">
+                {{ currentUser.user_name }}
+              </p>
+              <p v-if="!isJoined" key="!isJoined" style="font-size:18px;">
+                {{ dateTime.date }}
+              </p>
+            </transition>
+            <transition name="fade">
+              <p v-if="isJoined" style="font-size:12px;color:#a5ccb0;margin-top:12px;">
+                通话中
+              </p>
+            </transition>
           </div>
-          <div class="date">
-            2020年5月2日
+          <div class="volctrl">
+            <transition name="fade" mode="out-in" type="transition">
+              <div v-if="isJoined" key="isJoined">
+                <!--TODO:Volume Control-->
+              </div>
+              <div v-if="!isJoined" key="!isJoined" class="waiting">
+                <p>选择通话以连接</p>
+              </div>
+            </transition>
           </div>
         </div>
       </div>
@@ -20,6 +43,9 @@
       <Card>
         <h3 slot="title">
           等候列表
+          <button @click="isJoined = !isJoined">
+            现在{{ isJoined ? "连接" : "挂断" }}
+          </button>
         </h3>
         <div style="height:438px;overflow:hidden auto;margin:-8px">
           <div v-for=" item in waitingList" :key="item.uid" class="user">
@@ -58,6 +84,26 @@
 </template>
 
 <style scoped>
+@keyframes ani-bg{
+  0% { background-color: #172b58; }
+  20% { background-color: #58173c; }
+  40% { background-color: #175851; }
+  60% { background-color: #17583d; }
+  80% { background-color: #174158; }
+  100% { background-color: #172b58; }
+}
+@keyframes ani-op{
+  0% { opacity: .3; }
+  50% { opacity: .3; }
+  75% { opacity: .8; }
+  100% { opacity: .3; }
+}
+.fade-enter-active, .fade-leave-active{
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to{
+  opacity: 0;
+}
 .container{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -77,6 +123,7 @@
   height: 56px;
   border-radius: 50%;
   align-self: center;
+  transition: transform 1s;
 }
 .user-base-info{
   flex-grow: 1;
@@ -101,6 +148,7 @@
   border-radius: 5px;
   border: 1px solid rgb(218, 218, 218);
   position: relative;
+  color: white;
 }
 .phone > .background{
   position: absolute;
@@ -108,23 +156,35 @@
   left: 0;
   width: 100%;
   height: 100%;
-  filter: blur(25px);
+  border-radius: 4px;
+  background-color: #172b58;
+  transition: background-color 1s;
 }
-.calling{
-  width: 100%;
-  height: 100%;
-
-}
-.waiting{
+.callui{
+  position: absolute;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-
+  user-select: none;
 }
-
+.callui > .status{
+  margin-top: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+.callui > .volctrl{
+  margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.callui > .volctrl > .waiting{
+  animation: ani-op 5s infinite;
+}
 </style>
 
 <script>
@@ -235,6 +295,10 @@ export default {
         medal_name: '',
         medal_level: 0,
         medal_color: 0
+      },
+      dateTime: {
+        date: '',
+        time: ''
       }
     }
   },
@@ -245,6 +309,12 @@ export default {
       this.uid = this.$store.state.App.uid
       this.getWaitList()
     }
+    // Date&Time
+    setInterval(() => {
+      const date = new Date()
+      this.dateTime.date = `${date.getMonth() + 1}月${date.getDate()}日`
+      this.dateTime.time = `${date.getHours()}:${(date.getMinutes() > 0 && date.getMinutes() < 10) ? ('0' + date.getMinutes()) : date.getMinutes()}`
+    }, 1000)
   },
   danmaku: {
     VOICE_JOIN_LIST () {
