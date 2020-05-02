@@ -183,6 +183,7 @@ export default {
           this.getUserInfo()
         } else if (res.code !== undefined) {
           this.$Message.error(`错误：${res.code}，${res.message || res.msg}`)
+          console.log(res)
         } else {
           this.$Message.error('切换分区失败：未知错误')
           console.log(res)

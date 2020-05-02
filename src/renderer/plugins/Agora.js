@@ -172,7 +172,12 @@ class AgoraController extends EventEmitter {
     })
     element.id = 'remote_video_' + id
     element.srcObject = new MediaStream([stream.getAudioTrack()])
-    element.play().then(console.log).catch(console.log)
+    element.play().then((...args) => {
+      console.log(...args)
+      this.emit('connectedToRemote')
+    }).catch((...args) => {
+      this.emit('playError', ...args)
+    })
     this.createdElememts.push(element)
   }
 

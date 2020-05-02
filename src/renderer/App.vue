@@ -5,44 +5,50 @@
   >
     <Layout :style="{minHeight: '100vh'}">
       <Sider>
-        <div>
-          <Menu
-            :active-name="page"
-            theme="dark"
-            width="auto"
-            :open-names="['1']"
-            @on-select="onSelect"
-          >
-            <MenuItem name="home">
-              <Icon type="md-home" />
-              首页
-            </MenuItem>
-            <MenuItem name="live">
-              <Icon type="md-play" />
-              直播
-            </MenuItem>
-            <MenuItem name="rules">
-              <Icon type="md-construct" />
-              参与条件
-            </MenuItem>
-            <MenuItem name="phone">
-              <Icon type="md-call" />
-              接线台
-              <Badge :count="10"></Badge>
-            </MenuItem>
-            <MenuItem name="setting">
-              <Icon type="md-settings" />
-              设置
-            </MenuItem>
-            <MenuItem name="help">
-              <Icon type="md-help" />
-              帮助
-            </MenuItem>
-            <MenuItem name="debug">
-              <Icon type="md-bug" />
-              Debug
-            </MenuItem>
-          </Menu>
+        <div class="sider-container">
+          <div>
+            <Menu
+              :active-name="page"
+              theme="dark"
+              width="auto"
+              :open-names="['1']"
+              @on-select="onSelect"
+            >
+              <MenuItem name="home">
+                <Icon type="md-home" />
+                首页
+              </MenuItem>
+              <MenuItem name="live">
+                <Icon type="md-play" />
+                直播间设置
+              </MenuItem>
+              <MenuItem name="rules">
+                <Icon type="md-construct" />
+                参与条件
+              </MenuItem>
+              <MenuItem name="phone">
+                <Icon type="md-call" />
+                接线台
+                <Badge :count="count"></Badge>
+              </MenuItem>
+              <MenuItem name="setting">
+                <Icon type="md-settings" />
+                设置
+              </MenuItem>
+              <MenuItem name="help">
+                <Icon type="md-help" />
+                帮助
+              </MenuItem>
+              <MenuItem name="debug">
+                <Icon type="md-bug" />
+                Debug
+              </MenuItem>
+            </Menu>
+          </div>
+          <div style="flex-grow:1"></div>
+          <div class="status-container">
+            <div>头像</div><div>通话中 时长</div>
+          </div>
         </div>
       </Sider>
       <Content :style="{backgroundColor:'rgb(245,247,249)',minHeight:'100vh',maxheight:'100vh'}">
@@ -63,6 +69,17 @@ div::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.432);
   border-radius: 4px;
 }
+.sider-container{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.status-container{
+  align-self: flex-end;
+  width: 100%;
+  color: white;
+  display: flex;
+}
 </style>
 
 <script>
@@ -73,13 +90,22 @@ export default {
   mixins: [AgoraMixin, DanmakuMixin],
   data: function () {
     return {
-      page: 'home'
+      page: 'home',
+      count: 0
     }
   },
-  captcha: {
-    postMessage (...args) {
-      console.log(...args)
+  danmuku: {
+    VOICE_JOIN_ROOM_COUNT_INFO (msg) {
+      if (msg.data && (msg.data.apply_count || msg.data.notify_count)) {
+        this.count = msg.data.apply_count || msg.data.notify_count
+      } else {
+        this.count = 0
+      }
+    },
+    VOICE_JOIN_STATUS (msg) {
+
     }
+
   },
   methods: {
     onSelect (name) {

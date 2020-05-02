@@ -1,71 +1,73 @@
 <template>
-  <Row>
-    <i-col span="12">
-      <div>
-        <p>状态：{{ isJoined }}</p>
-        <p>{{ currentUser.uid }}</p>
-        <p>{{ currentUser.start_at }}</p>
-        <p>{{ currentUser.user_name }}</p>
-        <p>{{ currentUser.head_pic }}</p>
-        <p>{{ currentUser.user_level }}</p>
-        <p>{{ currentUser.user_level_color }}</p>
-        <p>{{ currentUser.guard }}</p>
-        <p>{{ currentUser.medal_name }}</p>
-        <p>{{ currentUser.medal_level }}</p>
-        <p>{{ currentUser.medal_color }}</p>
-        <Button @click="getWaitList" />
-        <Button @click="leave" />
-      </div>
-    </i-col>
-    <i-col span="12">
-      <div style="padding:5px">
-        <Card>
-          <h3 slot="title">
-            等候列表
-          </h3>
-          <div style=" height:410px;overflow-y:auto">
-            <div v-for=" item in waitingList" :key="item.uid">
-              <Card>
-                <div style="margin:-10px;overflow:hidden">
-                  <div class="user">
-                    <img :src="item.head_pic" class="face">
-                    <div class="user-info">
-                      <p><strong>{{ item.user_name }}</strong> </p>
-                      <p><span>UID:{{ item.uid }}</span></p>
-                      <p><span>UL {{ item.user_level }}</span> <span v-if="item.medal_name && item.medal_level">{{ item.medal_name }} {{ item.medal_level }}</span></p>
-                    </div>
-                    <div class="action">
-                      <Dropdown trigger="click" :transfer="true">
-                        <Button shape="circle" icon="ios-more" />
-                        <DropdownMenu slot="list">
-                          <DropdownItem>拒接</DropdownItem>
-                          <DropdownItem>封禁</DropdownItem>
-                        </DropdownMenu>
-                      </Dropdown>
-                      <!-- <Button shape="circle" icon="ios-more" /> -->
-                      <Button
-                        type="success"
-                        icon="md-call"
-                        shape="circle"
-                        size="large"
-                        @click="connect(item)"
-                      />
-                    </div>
-                  </div>
-                  <Divider size="small" />
-                  <span>{{ item.user_msg }}</span>
-                </div>
-              </Card>
-            </div>
+  <div class="container">
+    <div class="item">
+      <div class="phone">
+        <div class="background">
+          <div style="position:absolute;width:50px;height:50px;top:200px;left:30px;background-color:red;border-radius:25px"></div>
+        </div>
+        <div v-if="isJoined" class="calling"></div>
+        <div v-else class="waiting">
+          <div class="time">
+            19点54分
           </div>
-        </Card>
+          <div class="date">
+            2020年5月2日
+          </div>
+        </div>
       </div>
-    </i-col>
-  </Row>
+    </div>
+    <div class="item">
+      <Card>
+        <h3 slot="title">
+          等候列表
+        </h3>
+        <div style="height:438px;overflow:hidden auto;margin:-8px">
+          <div v-for=" item in waitingList" :key="item.uid" class="user">
+            <div class="user-info">
+              <img :src="item.head_pic" class="face">
+              <div class="user-base-info">
+                <p><strong>{{ item.user_name }}</strong> </p>
+                <p><span>UID:{{ item.uid }}</span></p>
+                <p><span>UL {{ item.user_level }}</span> <span v-if="item.medal_name && item.medal_level">{{ item.medal_name }} {{ item.medal_level }}</span></p>
+              </div>
+              <div class="action">
+                <Dropdown trigger="click" :transfer="true">
+                  <Button shape="circle" icon="ios-more" />
+                  <DropdownMenu slot="list">
+                    <DropdownItem>拒接</DropdownItem>
+                    <DropdownItem>封禁</DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+                <!-- <Button shape="circle" icon="ios-more" /> -->
+                <Button
+                  type="success"
+                  icon="md-call"
+                  shape="circle"
+                  size="large"
+                  @click="connect(item)"
+                />
+              </div>
+            </div>
+            <Divider size="small" />
+            <span>{{ item.user_msg }}</span>
+          </div>
+        </div>
+      </Card>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.user{
+.container{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  height: 100%;
+}
+.item{
+  padding: 5px;
+}
+.user-info{
   display: flex;
   width: 100%;
 }
@@ -76,7 +78,7 @@
   border-radius: 50%;
   align-self: center;
 }
-.user-info{
+.user-base-info{
   flex-grow: 1;
   padding-left: 10px;
 }
@@ -87,15 +89,114 @@
 .ivu-divider{
   margin: 2px;
 }
+.user{
+  border: 1px solid rgb(218, 218, 218);
+  padding: 5px;
+  border-radius: 5px;
+  margin: 2px;
+}
+.phone{
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  border: 1px solid rgb(218, 218, 218);
+  position: relative;
+}
+.phone > .background{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(25px);
+  pointer-events: ;
+}
+.calling{
+  width: 100%;
+  height: 100%;
+
+}
+.waiting{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+}
+.waiting >.clock{
+
+}
 </style>
 
 <script>
+import AgoraMixin from '../mixins/AgoraMixin'
+import DanmakuMixin from '../mixins/DanmakuMixin'
+
 export default {
+  mixins: [AgoraMixin, DanmakuMixin],
   data: function () {
     return {
       roomId: 0,
       uid: 0,
       waitingList: [
+        {
+          uid: 178820108,
+          user_msg: '连麦嘛？很甜的那种。',
+          create_at: 1587464335,
+          user_name: '只是一个搬运工',
+          head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
+          user_level: 22,
+          user_level_color: 5805790,
+          guard: 0,
+          medal_name: '',
+          medal_color: 0,
+          medal_level: 0,
+          order: 0
+        },
+        {
+          uid: 178820108,
+          user_msg: '连麦嘛？很甜的那种。',
+          create_at: 1587464335,
+          user_name: '只是一个搬运工',
+          head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
+          user_level: 22,
+          user_level_color: 5805790,
+          guard: 0,
+          medal_name: '',
+          medal_color: 0,
+          medal_level: 0,
+          order: 0
+        },
+        {
+          uid: 178820108,
+          user_msg: '连麦嘛？很甜的那种。',
+          create_at: 1587464335,
+          user_name: '只是一个搬运工',
+          head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
+          user_level: 22,
+          user_level_color: 5805790,
+          guard: 0,
+          medal_name: '',
+          medal_color: 0,
+          medal_level: 0,
+          order: 0
+        },
+        {
+          uid: 178820108,
+          user_msg: '连麦嘛？很甜的那种。',
+          create_at: 1587464335,
+          user_name: '只是一个搬运工',
+          head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
+          user_level: 22,
+          user_level_color: 5805790,
+          guard: 0,
+          medal_name: '',
+          medal_color: 0,
+          medal_level: 0,
+          order: 0
+        },
         {
           uid: 178820108,
           user_msg: '连麦嘛？很甜的那种。',
@@ -127,12 +228,12 @@ export default {
         }],
       isJoined: false,
       currentUser: {
-        uid: 0,
+        uid: 178820108,
         start_at: 0,
-        user_name: '',
-        head_pic: '',
-        user_level: 0,
-        user_level_color: 0,
+        user_name: '只是一个搬运工',
+        head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
+        user_level: 22,
+        user_level_color: 5805790,
         guard: 0,
         medal_name: '',
         medal_level: 0,
@@ -145,6 +246,11 @@ export default {
     if (this.isLogined) {
       this.roomId = this.$store.state.App.roomId
       this.uid = this.$store.state.App.uid
+      this.getWaitList()
+    }
+  },
+  danmaku: {
+    VOICE_JOIN_LIST () {
       this.getWaitList()
     }
   },
