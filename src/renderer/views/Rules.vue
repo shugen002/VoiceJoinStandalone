@@ -14,13 +14,19 @@
               <i-switch
                 v-model="roomStatus"
                 size="large"
+                @on-change="setRoomSwitch"
               >
                 <span slot="open">开</span>
                 <span slot="close">关</span>
               </i-switch>
             </FormItem>
             <FormItem label="条件">
-              <RadioGroup v-model="type" size="large" vertical>
+              <RadioGroup
+                v-model="type"
+                size="large"
+                vertical
+                @on-change="saveConfig"
+              >
                 <Radio label="0" :disabled="!roomStatus">
                   关注即可
                 </Radio>
@@ -36,7 +42,7 @@
               </RadioGroup>
             </FormItem>
             <FormItem v-if="type=='1'&&roomStatus" label="不小于">
-              <Select v-model="minGuardLevel">
+              <Select v-model="minGuardLevel" @on-change="saveConfig">
                 <Option value="3">
                   舰长
                 </Option>
@@ -55,6 +61,7 @@
                 :max="20"
                 :step="1"
                 show-input
+                @on-change="onMinMedalLevelChange"
               />
             </FormItem>
           </Form>
@@ -104,10 +111,6 @@
         </div>
       </i-col>
     </Row>
-    <Divider />
-    <Button @click="saveConfig">
-      保存
-    </Button>
   </div>
 </template>
 <style scoped>
@@ -198,18 +201,51 @@ export default {
     searchAndPickUp () {
       this.$api.searchUser(this.addUserInput).then((res) => {
         this.users.push(res.data)
+        this.saveConfig()
       })
       this.addUserInput = ''
     },
     remove (index) {
       this.users.splice(index, 1)
+      if (this.users.length <= 0) {
+        this.$Message.warning('用户列表不能为空，无法保存')
+      } else {
+        this.saveConfig()
+      }
+    },
+    setRoomSwitch (val) {
+      this.$api.setRoomSwitch(this.roomId, val).then((res) => {
+        if (res.code === 0) {
+          this.$Message.success('成功')
+        } else if (res.code !== undefined) {
+          this.$Message.error(`错误：${res.code}，${res.message || res.msg}`)
+        } else {
+          this.$Message.error('切换房间开关失败：未知错误')
+          console.log(res)
+        }
+        this.getRoomCan()
+      }).catch((...args) => {
+        this.$Message.error('未知错误')
+        console.log(...args)
+      })
     },
     saveConfig () {
       this.$api.setConfig(this.roomId, this.type, this.minGuardLevel, this.minMedalLevel, this.users.map((e) => { return e.uid }))
         .then((res) => {
-          if (res.code === 0) {}
+          if (res.code === 0) {
+            this.$Message.success('成功设置规则')
+          } else if (res.code !== undefined) {
+            this.$Message.error(`设置规则失败：${res.code}，${res.message || res.msg}`)
+          } else {
+            this.$Message.error('设置规则失败：未知错误')
+            console.log(res)
+          }
           this.syncConfig()
         })
+    },
+    onMinMedalLevelChange (val) {
+      this.minMedalLevel = val
+      this.saveConfig()
     }
   }
 }
