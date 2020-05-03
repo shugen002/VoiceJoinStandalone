@@ -162,14 +162,24 @@ export default {
     }
   },
   created () {
-    this.isLogined = this.$store.state.App.isLogined
-    if (this.isLogined) {
-      this.roomId = this.$store.state.App.roomId
-      this.getRoomCan()
-      this.syncConfig()
-    }
+    this.getUserInfo()
   },
   methods: {
+    getUserInfo () {
+      this.$api.getInfo().then((res) => {
+        if (res.code === 0) {
+          this.isLogined = true
+          this.roomId = res.data.room_id
+          this.getRoomCan()
+          this.syncConfig()
+        } else {
+          this.$Message.error('未登录或其他错误')
+        }
+      }).catch((err) => {
+        this.$Message.error('未登录或其他错误')
+        console.log(err)
+      })
+    },
     getRoomCan () {
       this.$api.getRoomCan(this.roomId).then((e) => {
         if (e.code === 0) {
