@@ -299,7 +299,8 @@ export default {
       dateTime: {
         date: '',
         time: ''
-      }
+      },
+      timer: null
     }
   },
   created () {
@@ -310,11 +311,14 @@ export default {
       this.getWaitList()
     }
     // Date&Time
-    setInterval(() => {
+    this.timer = setInterval(() => {
       const date = new Date()
       this.dateTime.date = `${date.getMonth() + 1}月${date.getDate()}日`
-      this.dateTime.time = `${date.getHours()}:${(date.getMinutes() > 0 && date.getMinutes() < 10) ? ('0' + date.getMinutes()) : date.getMinutes()}`
+      this.dateTime.time = `${date.getHours()}:${date.getMinutes().toLocaleString('zh-cn', { minimumIntegerDigits: 2 })} `
     }, 1000)
+  },
+  beforeDestroy () {
+    clearInterval(this.timer)
   },
   danmaku: {
     VOICE_JOIN_LIST () {
