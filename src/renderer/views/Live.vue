@@ -59,13 +59,40 @@
             </div>
           </div> -->
           <div class="button-container">
-            <!-- TODO: 推流码 -->
             <Button v-if="liveStatus==1" @click="stopLive">
               停止直播
             </Button>
             <Button v-else @click="startLive">
               开始直播
             </Button>
+          </div>
+          <div v-if="liveStatus==1" style="margin-top:10px">
+            <div class="form-item">
+              <div class="label">
+                推流地址
+              </div>
+              <i-input
+                v-model="rtmpaddr"
+                style="width:200px"
+                type="password"
+                password
+                readonly
+              />
+              <Button icon="md-copy" @click="copyAddr" />
+            </div>
+            <div class="form-item">
+              <div class="label">
+                推流码
+              </div>
+              <i-input
+                v-model="rtmpcode"
+                style="width:200px"
+                type="password"
+                password
+                readonly
+              />
+              <Button icon="md-copy" @click="copyCode" />
+            </div>
           </div>
         </Card>
       </div>
@@ -92,7 +119,11 @@
   row-gap: 5px;
 }
 .form-item{
+  display: flex;
   padding: 5px;
+}
+.form-item>.label{
+  min-width: 100px;
 }
 .area-container{
   width: 100%;
@@ -120,6 +151,7 @@
 .button-container{
   display: flex;
   justify-content: flex-end;
+  padding-right: 30px;
 }
 </style>
 <script>
@@ -135,7 +167,9 @@ export default {
       area: 0,
       // lastSelectTag: 0,
       title: '',
-      liveStatus: 0
+      liveStatus: 0,
+      rtmpaddr: 'addr',
+      rtmpcode: 'code'
     }
   },
   created () {
@@ -230,7 +264,9 @@ export default {
       this.$api.startLive(this.roomId, this.area, 2).then((res) => {
         this.getUserInfo()
         if (res.code === 0) {
-          this.setTag(this.lastSelectTag)
+          this.rtmpaddr = res.data.rtmp.addr
+          this.rtmpcode = res.data.rtmp.code
+          // this.setTag(this.lastSelectTag)
           this.$Message.success('开播了，快干活')
           console.log(res)
         } else if (res.code !== undefined) {
@@ -248,7 +284,6 @@ export default {
       this.$api.stopLive(this.roomId).then((res) => {
         this.getUserInfo()
         if (res.code === 0) {
-          this.setTag(this.lastSelectTag)
           this.$Message.success('下播了，呼~')
         } else if (res.code !== undefined) {
           this.$Message.error(`错误：${res.code}，${res.message || res.msg}`)
@@ -274,6 +309,12 @@ export default {
         this.$Message.error('修改房间标题失败：未知错误')
         console.log(err)
       })
+    },
+    copyAddr () {
+      navigator.clipboard.writeText(this.rtmpaddr)
+    },
+    copyCode () {
+      navigator.clipboard.writeText(this.rtmpcode)
     }
   }
 }
