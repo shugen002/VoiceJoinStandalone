@@ -1,4 +1,5 @@
 var ipcRenderer = require('electron').ipcRenderer
+var shell = require('electron').shell
 
 class API {
   constructor () {
@@ -33,6 +34,10 @@ class API {
         return this.requestAPI(name, ...args)
       }
     })
+  }
+
+  openExternal (url) {
+    shell.openExternal(url)
   }
 
   requestAPI (...args) {
