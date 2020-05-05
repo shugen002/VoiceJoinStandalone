@@ -19,10 +19,12 @@ class AgoraController extends EventEmitter {
     this.currentChannel = ''
     this.uid = 0
     this.targetUid = 0
+    this.timeout = null
     this.client = AgoraRTC.createClient({ mode: 'rtc', codec: 'h264' })
     this.client.init(appId, function () {
       console.log('init success')
     }, (err) => {
+      this.errored = true
       console.error(err)
     })
     this.client.on('stream-added', (evt) => {
@@ -34,6 +36,8 @@ class AgoraController extends EventEmitter {
           this.emit('stream-suscribe-failed')
           console.log('stream subscribe failed', err)
         })
+      } else if (id === this.uid) {} else {
+        this.emit('threaten', 'stream-added', id)
       }
       this.emit('stream-added', evt)
       console.log('stream-added remote-uid: ', id)
@@ -54,6 +58,8 @@ class AgoraController extends EventEmitter {
           this.getRemoteAudio = true
           this.playStream(evt.stream)
         }
+      } else if (evt.stream.id === this.uid) {} else {
+        this.emit('threaten', 'stream-updated', evt.stream.id)
       }
     })
 
@@ -94,12 +100,19 @@ class AgoraController extends EventEmitter {
     })
   }
 
-  join (channel, uid, targetUid) {
+  join (channel, uid, targetUid, timeout = 10000) {
     if (this.joined) {
       throw (new Error('Already Joined'))
     } else {
       this.getRemoteAudio = false
       this.targetUid = targetUid
+      this.currentChannel = channel
+      this.timeout = setTimeout(() => {
+        if (this.joined && this.published && this.getRemoteAudio) {} else {
+          this.emit('timeout')
+        }
+        this.timeout = null
+      }, timeout)
       return new Promise((resolve, reject) => {
         this.client.join(null, channel, uid, (...args) => {
           this.joined = true

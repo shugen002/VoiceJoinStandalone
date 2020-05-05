@@ -1,13 +1,13 @@
 <template>
-  <Layout>
-    <Content :style="{padding: '16px'}">
+  <div class="container">
+    <div class="panel">
+      <h3>当前用户信息</h3>
       <div v-if="!isLogined">
         <Button @click="jumpLogin">
           登录
         </Button>
       </div>
       <div v-if="isLogined">
-        <h1>当前用户信息</h1>
         <p>
           <img
             :src="face"
@@ -18,12 +18,24 @@
         <p>UID: {{ uid }}</p>
         <p>房间号: {{ roomId }}</p>
       </div>
-    </Content>
-  </Layout>
+    </div>
+    <div class="panel">
+      <h2>关于</h2>
+      <p>由于</p>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-
+.container{
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: 1fr 1fr;
+}
+.panel{
+  padding: 5px;
+}
 </style>
 
 <script>

@@ -10,7 +10,7 @@
             <img :src="currentUser.head_pic" class="face" :style="isJoined ? '' : 'transform:scale(0,0);'">
             <p style="font-size:72px;letter-spacing:4px;">
               <!--TODO:Time-->
-              {{ isJoined ? "0:00" : dateTime.time }}
+              {{ isJoined ? deltaTime : dateTime.time }}
             </p>
             <transition name="fade" mode="out-in">
               <p v-if="isJoined" key="isJoined" style="font-size:18px;">
@@ -24,6 +24,14 @@
               <p v-if="isJoined" style="font-size:12px;color:#a5ccb0;margin-top:12px;">
                 通话中
               </p>
+            </transition>
+            <transition name="fade">
+              <div v-if="isJoined" class="end-button" @click="leave">
+                <i
+                  class="ivu-icon ivu-icon-md-call"
+                  style="transform:rotate(135deg);font-size:40px"
+                ></i>
+              </div>
             </transition>
           </div>
           <div class="volctrl">
@@ -57,11 +65,18 @@
                 <p><span>UL {{ item.user_level }}</span> <span v-if="item.medal_name && item.medal_level">{{ item.medal_name }} {{ item.medal_level }}</span></p>
               </div>
               <div class="action">
-                <Dropdown trigger="click" :transfer="true">
+                <Dropdown trigger="click" :transfer="true" @on-click="select($event,item)">
                   <Button shape="circle" icon="ios-more" />
                   <DropdownMenu slot="list">
-                    <DropdownItem>拒接</DropdownItem>
-                    <DropdownItem>封禁</DropdownItem>
+                    <DropdownItem name="space">
+                      个人空间
+                    </DropdownItem>
+                    <DropdownItem divided name="reject">
+                      拒接
+                    </DropdownItem>
+                    <DropdownItem name="ban">
+                      封禁
+                    </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
                 <!-- <Button shape="circle" icon="ios-more" /> -->
@@ -80,6 +95,17 @@
         </div>
       </Card>
     </div>
+    <Modal v-model="banModal" title="封禁？" @on-ok="realBan">
+      <p>你真的要封禁这个用户吗？封禁后24小时内他(/她/它/牠<span v-if="false">/&#34421;</span>)将无法申请与你连麦。</p>
+      <div class="user-info">
+        <img :src="banUser.head_pic" class="face">
+        <div class="user-base-info">
+          <p><strong>{{ banUser.user_name }}</strong> </p>
+          <p><span>UID:{{ banUser.uid }}</span></p>
+          <p><span>UL {{ banUser.user_level }}</span> <span v-if="banUser.medal_name && banUser.medal_level">{{ banUser.medal_name }} {{ banUser.medal_level }}</span></p>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -185,6 +211,14 @@
 .callui > .volctrl > .waiting{
   animation: ani-op 5s infinite;
 }
+.callui > .status > .end-button{
+  padding: 10px;
+  background-color: #aa0000;
+  border-radius: 50%;
+}
+.callui > .status > .end-button:hover{
+  background-color: #cc0000;
+}
 </style>
 
 <script>
@@ -195,79 +229,10 @@ export default {
   mixins: [AgoraMixin, DanmakuMixin],
   data: function () {
     return {
+      status: 0, // 0 等待 1 通话中 2 拨号中
       roomId: 0,
       uid: 0,
-      waitingList: [
-        {
-          uid: 178820108,
-          user_msg: '连麦嘛？很甜的那种。',
-          create_at: 1587464335,
-          user_name: '只是一个搬运工',
-          head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
-          user_level: 22,
-          user_level_color: 5805790,
-          guard: 0,
-          medal_name: '',
-          medal_color: 0,
-          medal_level: 0,
-          order: 0
-        },
-        {
-          uid: 178820104,
-          user_msg: '连麦嘛？很甜的那种。',
-          create_at: 1587464335,
-          user_name: '只是一个搬运工',
-          head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
-          user_level: 22,
-          user_level_color: 5805790,
-          guard: 0,
-          medal_name: '',
-          medal_color: 0,
-          medal_level: 0,
-          order: 0
-        },
-        {
-          uid: 178820103,
-          user_msg: '连麦嘛？很甜的那种。',
-          create_at: 1587464335,
-          user_name: '只是一个搬运工',
-          head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
-          user_level: 22,
-          user_level_color: 5805790,
-          guard: 0,
-          medal_name: '',
-          medal_color: 0,
-          medal_level: 0,
-          order: 0
-        },
-        {
-          uid: 178820102,
-          user_msg: '连麦嘛？很甜的那种。',
-          create_at: 1587464335,
-          user_name: '只是一个搬运工',
-          head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
-          user_level: 22,
-          user_level_color: 5805790,
-          guard: 0,
-          medal_name: '',
-          medal_color: 0,
-          medal_level: 0,
-          order: 0
-        },
-        {
-          uid: 178820101,
-          user_msg: '连麦嘛？很甜的那种。',
-          create_at: 1587464335,
-          user_name: '只是一个搬运工',
-          head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
-          user_level: 22,
-          user_level_color: 5805790,
-          guard: 0,
-          medal_name: '',
-          medal_color: 0,
-          medal_level: 0,
-          order: 0
-        }],
+      waitingList: [],
       waitingListColumn: [
         {
           title: 'UID',
@@ -285,12 +250,12 @@ export default {
         }],
       isJoined: false,
       currentUser: {
-        uid: 178820108,
+        uid: 0,
         start_at: 0,
-        user_name: '只是一个搬运工',
-        head_pic: 'https://i2.hdslb.com/bfs/face/1e042bf1a74a46ecd2b9d87bebbdd8d9abc4fb25.jpg',
-        user_level: 22,
-        user_level_color: 5805790,
+        user_name: '',
+        head_pic: '',
+        user_level: 0,
+        user_level_color: 0,
         guard: 0,
         medal_name: '',
         medal_level: 0,
@@ -300,7 +265,16 @@ export default {
         date: '',
         time: ''
       },
-      timer: null
+      timer: null,
+      deltaTime: '0:00',
+      offset: 0,
+      banModal: false,
+      banUser: {}
+    }
+  },
+  watch: {
+    isJoined () {
+      this.isJoined ? this.timeUpdate() : this.callTimeUpdate()
     }
   },
   created () {
@@ -311,10 +285,9 @@ export default {
       this.getWaitList()
     }
     // Date&Time
+    this.timeUpdate()
     this.timer = setInterval(() => {
-      const date = new Date()
-      this.dateTime.date = `${date.getMonth() + 1}月${date.getDate()}日`
-      this.dateTime.time = `${date.getHours()}:${date.getMinutes().toLocaleString('zh-cn', { minimumIntegerDigits: 2 })} `
+      this.isJoined ? this.callTimeUpdate() : this.timeUpdate()
     }, 1000)
   },
   beforeDestroy () {
@@ -323,7 +296,13 @@ export default {
   danmaku: {
     VOICE_JOIN_LIST () {
       this.getWaitList()
+    },
+    VOICE_JOIN_STATUS () {
+      this.getWaitList()
     }
+  },
+  agora: {
+
   },
   methods: {
     getWaitList () {
@@ -332,6 +311,12 @@ export default {
           this.waitingList = res.data.list
           this.isJoined = !!res.data.status.status
           this.currentUser = res.data.status
+          if (this.isJoined) {
+            if (this.callTimer === null) {
+              this.offset = res.data.status.current_time - Date.now() / 1000
+              // callTimer = setInterval()
+            }
+          }
         } else {
           this.$Message.error('拉取等候列表失败')
           console.log(res)
@@ -361,20 +346,45 @@ export default {
       })
     },
     ban (user) {
-
+      this.banUser = user
+      this.banModal = true
     },
-    realBan (user) {
-      this.$api.rejectUser(this.roomId, user.uid, 1).then((res) => {
+    realBan () {
+      this.$api.rejectUser(this.roomId, this.banUser.uid, 1).then((res) => {
         if (res.code === 0) {
-          this.$Message.success('封禁成功，24小时内无法连麦')
+          this.$Message.success('封禁成功，24小时内无法与你连麦')
           this.getWaitList()
         }
       })
     },
     leave () {
+      this.$api.stopVoiceJoin(this.roomId, this.$agora.currentChannel)
       this.$agora.leave()
+    },
+    timeUpdate () {
+      const date = new Date()
+      this.dateTime.date = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
+      this.dateTime.time = `${date.getHours()}:${date.getMinutes().toLocaleString('zh-cn', { minimumIntegerDigits: 2 })} `
+    },
+    callTimeUpdate () {
+      var second = parseInt(Date.now() / 1000 - this.offset - this.currentUser.start_at)
+      this.deltaTime = second > 3600 ? `${parseInt(second / 3600)}:${parseInt(second % 3600 / 60)}:${second % 60}` : `${parseInt(second % 3600 / 60)}:${second % 60}`
+    },
+    select (action, target) {
+      switch (action) {
+        case 'ban':
+          this.ban(target)
+          break
+        case 'reject':
+          this.reject(target)
+          break
+        case 'space':
+          this.$api.openExternal(`https://space.bilibili.com/${target.uid}`)
+          break
+        default:
+          break
+      }
     }
-
   }
 }
 </script>

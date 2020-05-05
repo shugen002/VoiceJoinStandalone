@@ -107,6 +107,11 @@ export default {
     }
 
   },
+  agora: {
+    'peer-leave' () {
+      this.$agora.leave()
+    }
+  },
   methods: {
     onSelect (name) {
       this.$router.push(name)
