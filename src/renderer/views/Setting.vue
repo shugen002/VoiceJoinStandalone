@@ -48,7 +48,7 @@ export default {
   methods: {
     sync () {
       this.$agora.audioInputDevice = this.audioInputDevice
-      this.$agora.audioOutputDevices = this.audioOutputDevice
+      this.$agora.audioOutputDevice = this.audioOutputDevice
     }
   }
 }

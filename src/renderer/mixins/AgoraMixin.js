@@ -1,6 +1,6 @@
 export default {
   mounted () {
-    const AgoraController = this.$options.AgoraController
+    const AgoraController = this.$options.agora
     if (AgoraController) {
       this._agoraEventListener = {}
       Object.keys(AgoraController).forEach(event => {

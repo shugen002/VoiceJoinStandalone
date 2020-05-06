@@ -83,7 +83,6 @@ class AgoraController extends EventEmitter {
       }
     })
     this.client.on('peer-leave', (evt) => {
-      debugger
       if (evt.uid === this.targetUid) {
         this.emit('peer-leave')
       }
@@ -108,7 +107,6 @@ class AgoraController extends EventEmitter {
       this.targetUid = targetUid
       this.currentChannel = channel
       this.timeout = setTimeout(() => {
-        debugger
         if (this.joined && this.published && this.getRemoteAudio) {} else {
           this.leave()
           this.emit('timeout')
@@ -158,16 +156,19 @@ class AgoraController extends EventEmitter {
 
     try {
       this.localStream.stop()
+    } catch (error) {
+      console.log(error)
     } finally {
       this.localStream = null
     }
 
     try {
       this.localSoundTrack.stop()
+    } catch (error) {
+      console.log(error)
     } finally {
       this.localSoundTrack = null
     }
-    this.localSoundTrack.stop()
 
     this.targetUid = 0
     this.currentChannel = ''
@@ -199,17 +200,25 @@ class AgoraController extends EventEmitter {
   playStream (stream) {
     var id = stream.getId()
     var element = document.createElement('video')
-    element.setSinkId(this.audioOutputDevice).then(() => {
-      console.log('Set Devices Success')
-    })
     element.id = 'remote_video_' + id
     element.srcObject = new MediaStream([stream.getAudioTrack()])
-    element.play().then((...args) => {
-      console.log(...args)
-      this.emit('connectedToRemote')
-    }).catch((...args) => {
-      this.emit('playError', ...args)
+    element.setSinkId(this.audioOutputDevice).then(() => {
+      console.log('Set Devices Success')
+      element.play().then((...args) => {
+        console.log(...args)
+        this.emit('connectedToRemote')
+      }).catch((...args) => {
+        this.emit('playError', ...args)
+      })
+    }).catch(() => {
+      element.play().then((...args) => {
+        console.log(...args)
+        this.emit('connectedToRemote')
+      }).catch((...args) => {
+        this.emit('playError', ...args)
+      })
     })
+
     this.createdElememts.push(element)
   }
 
