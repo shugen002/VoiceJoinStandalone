@@ -56,7 +56,7 @@ const config = {
   },
   win: {
     icon: '_icons/icon.ico',
-    target: ['dir'],
+    target: ['dir', 'nsis'],
   },
   electronDownload:{
     mirror: 'https://npm.taobao.org/mirrors/electron/'

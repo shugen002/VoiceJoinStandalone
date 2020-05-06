@@ -294,11 +294,11 @@ export class API {
     })).data
   }
 
-  async stopVoiceJoin (roomId, voiceChannal) {
+  async stopVoiceJoin (roomId, voiceChannel) {
     const data = {
       access_key: this.accessKey,
       room_id: roomId,
-      voice_channal: voiceChannal
+      voice_channel: voiceChannel
     }
     return (await this.axios.get('/av/v1/VoiceJoinAnchor/Stop', {
       params: sign(data, appkey, secret, platform)

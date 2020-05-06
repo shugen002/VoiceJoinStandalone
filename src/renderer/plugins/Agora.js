@@ -45,6 +45,7 @@ class AgoraController extends EventEmitter {
     this.client.on('stream-subscribed', (evt) => {
       var remoteStream = evt.stream
       if (remoteStream.hasAudio()) {
+        this.getRemoteAudio = true
         this.playStream(remoteStream)
       }
       var id = remoteStream.getId()
@@ -58,8 +59,6 @@ class AgoraController extends EventEmitter {
           this.getRemoteAudio = true
           this.playStream(evt.stream)
         }
-      } else if (evt.stream.id === this.uid) {} else {
-        this.emit('threaten', 'stream-updated', evt.stream.id)
       }
     })
 
@@ -84,6 +83,7 @@ class AgoraController extends EventEmitter {
       }
     })
     this.client.on('peer-leave', (evt) => {
+      debugger
       if (evt.uid === this.targetUid) {
         this.emit('peer-leave')
       }
@@ -108,7 +108,9 @@ class AgoraController extends EventEmitter {
       this.targetUid = targetUid
       this.currentChannel = channel
       this.timeout = setTimeout(() => {
+        debugger
         if (this.joined && this.published && this.getRemoteAudio) {} else {
+          this.leave()
           this.emit('timeout')
         }
         this.timeout = null
@@ -124,37 +126,54 @@ class AgoraController extends EventEmitter {
   }
 
   leave () {
+    clearTimeout(this.timeout)
+    this.timeout = null
     return new Promise((resolve, reject) => {
+      this.localStream.close()
+      this.client.unpublish(this.localStream)
       this.client.leave((...args) => {
-        this.joined = false
-        this.published = false
-        this.remoteStreams.forEach(stream => { this.stopStream(stream) })
-        this.remoteStreams = []
-        this.localStream.close()
-        this.localStream = null
-        this.localSoundTrack.stop()
-        this.localSoundTrack = null
-        this.targetUid = 0
-        this.currentChannel = ''
-        this.getRemoteAudio = false
-        this.createdElememts.forEach((e) => { e.remove() })
-        this.createdElememts = []
+        this.cleanUp()
         resolve(...args)
       }, reject)
     })
   }
 
   publish () {
-    return new Promise((resolve, reject) => {
-      this.client.publish(this.localStream, (...args) => {
-        this.published = true
-        resolve(...args)
-      }, reject)
+    this.published = true
+    this.client.publish(this.localStream, (err) => {
+      this.published = false
+      console.log(err)
     })
   }
 
   getDevices () {
     return navigator.mediaDevices.enumerateDevices()
+  }
+
+  cleanUp () {
+    this.joined = false
+    this.published = false
+    this.remoteStreams.forEach(stream => { this.stopStream(stream) })
+    this.remoteStreams = []
+
+    try {
+      this.localStream.stop()
+    } finally {
+      this.localStream = null
+    }
+
+    try {
+      this.localSoundTrack.stop()
+    } finally {
+      this.localSoundTrack = null
+    }
+    this.localSoundTrack.stop()
+
+    this.targetUid = 0
+    this.currentChannel = ''
+    this.getRemoteAudio = false
+    this.createdElememts.forEach((e) => { e.remove() })
+    this.createdElememts = []
   }
 
   async createLocalStream () {

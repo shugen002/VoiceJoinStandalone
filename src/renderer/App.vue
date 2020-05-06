@@ -108,8 +108,21 @@ export default {
 
   },
   agora: {
+    connected () {
+      this.$Message.success('已连接到服务器')
+    },
+    connectedToRemote () {
+      this.$Message.success('通话已连接')
+    },
+    timeout () {
+      this.$Message.error('对方连接超时')
+    },
     'peer-leave' () {
+      this.$Message.info('对方已离开通话')
       this.$agora.leave()
+    },
+    disconnected () {
+      this.$Message.info('通话结束')
     }
   },
   methods: {

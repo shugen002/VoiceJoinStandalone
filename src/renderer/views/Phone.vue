@@ -149,7 +149,11 @@
   height: 56px;
   border-radius: 50%;
   align-self: center;
-  transition: transform 1s;
+}
+.phone > .face{
+    transition: transform 1s;
+    width: 128px;
+    height: 128px;
 }
 .user-base-info{
   flex-grow: 1;
@@ -278,12 +282,18 @@ export default {
     }
   },
   created () {
-    this.isLogined = this.$store.state.App.isLogined
-    if (this.isLogined) {
-      this.roomId = this.$store.state.App.roomId
-      this.uid = this.$store.state.App.uid
-      this.getWaitList()
-    }
+    this.$api.getInfo().then((res) => {
+      if (res.code === 0) {
+        this.isLogined = true
+        this.roomId = res.data.room_id
+        this.getWaitList()
+      } else {
+        this.$Message.error('未登录或其他错误')
+      }
+    }).catch((err) => {
+      this.$Message.error('未登录或其他错误')
+      console.log(err)
+    })
     // Date&Time
     this.timeUpdate()
     this.timer = setInterval(() => {
@@ -302,7 +312,9 @@ export default {
     }
   },
   agora: {
-
+    connectedToRemote () {
+      this.getWaitList()
+    }
   },
   methods: {
     getWaitList () {
@@ -327,6 +339,10 @@ export default {
       })
     },
     connect (user) {
+      if (this.isJoined) {
+        this.$Message.warning('已经在通话中了哦')
+        return
+      }
       this.$api.pickUser(this.roomId, user.uid).then((res) => {
         if (res.code === 0) {
           this.$agora.join(res.data.channel, this.uid + '', user.uid + '')
@@ -358,8 +374,11 @@ export default {
       })
     },
     leave () {
-      this.$api.stopVoiceJoin(this.roomId, this.$agora.currentChannel)
       this.$agora.leave()
+      const channel = this.$agora.currentChannel
+      setTimeout(() => {
+        this.$api.stopVoiceJoin(this.roomId, channel).then(console.log)
+      }, 100)
     },
     timeUpdate () {
       const date = new Date()
@@ -368,7 +387,9 @@ export default {
     },
     callTimeUpdate () {
       var second = parseInt(Date.now() / 1000 - this.offset - this.currentUser.start_at)
-      this.deltaTime = second > 3600 ? `${parseInt(second / 3600)}:${parseInt(second % 3600 / 60)}:${second % 60}` : `${parseInt(second % 3600 / 60)}:${second % 60}`
+      this.deltaTime = second > 3600
+        ? `${parseInt(second / 3600)}:${parseInt(second % 3600 / 60).toLocaleString('zh-cn', { minimumIntegerDigits: 2 })}:${(second % 60).toLocaleString('zh-cn', { minimumIntegerDigits: 2 })}`
+        : `${parseInt(second % 3600 / 60)}:${(second % 60).toLocaleString('zh-cn', { minimumIntegerDigits: 2 })}`
     },
     select (action, target) {
       switch (action) {

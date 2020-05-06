@@ -27,7 +27,8 @@ class API {
       'stopVoiceJoin',
       'getDanmuConf',
       'getLiverCustomTags',
-      'setLiverCustomTags'
+      'setLiverCustomTags',
+      'getStream'
     ]
     apilist.forEach(name => {
       this[name] = (...args) => {

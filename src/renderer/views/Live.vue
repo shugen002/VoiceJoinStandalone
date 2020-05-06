@@ -41,7 +41,7 @@
               </Tabs>
             </div>
           </div>
-          <!-- <div v-if="tags.length>0">
+          <div v-if="tags.length>0">
             <h3>直播标签</h3>
             <div class="form-item">
               <div class="tag-container">
@@ -57,7 +57,7 @@
                 </div>
               </div>
             </div>
-          </div> -->
+          </div>
           <div class="button-container">
             <Button v-if="liveStatus==1" @click="stopLive">
               停止直播
@@ -160,12 +160,12 @@ export default {
     return {
       currentTab: 'area1',
       areas: [],
-      // tags: [],
+      tags: [],
       isLogined: false,
       roomId: 0,
       parentArea: 0,
       area: 0,
-      // lastSelectTag: 0,
+      lastSelectTag: 0,
       title: '',
       liveStatus: 0,
       rtmpaddr: 'addr',
@@ -173,12 +173,24 @@ export default {
     }
   },
   created () {
-    this.getUserInfo()
+    this.getUserInfo().then(() => {
+      if (this.liveStatus === 1) {
+        this.$api.getStream(this.roomId).then((res) => {
+          if (res.code === 0) {
+            this.rtmpaddr = res.data.rtmp.addr
+            this.rtmpcode = res.data.rtmp.code
+          } else {
+            this.$Message.error('未登录或其他错误')
+            console.log(res)
+          }
+        })
+      }
+    })
     this.getAreaList()
   },
   methods: {
     getUserInfo () {
-      this.$api.getInfo().then((res) => {
+      return this.$api.getInfo().then((res) => {
         if (res.code === 0) {
           this.isLogined = true
           this.roomId = res.data.room_id
@@ -187,7 +199,7 @@ export default {
           this.title = res.data.title
           this.liveStatus = res.data.live_status
           this.currentTab = 'area' + this.parentArea
-          // this.getLiverCustomTags(this.area, this.parentArea)
+          this.getLiverCustomTags(this.area, this.parentArea)
         } else {
           this.$Message.error('未登录或其他错误')
           console.log(res)
@@ -266,7 +278,7 @@ export default {
         if (res.code === 0) {
           this.rtmpaddr = res.data.rtmp.addr
           this.rtmpcode = res.data.rtmp.code
-          // this.setTag(this.lastSelectTag)
+          this.setTag(this.lastSelectTag)
           this.$Message.success('开播了，快干活')
           console.log(res)
         } else if (res.code !== undefined) {
@@ -297,7 +309,6 @@ export default {
       this.$api.updateRoomTitle(this.roomId, this.title).then((res) => {
         this.getUserInfo()
         if (res.code === 0) {
-          this.setTag(this.lastSelectTag)
           this.$Message.success('修改房间标题成功')
         } else if (res.code !== undefined) {
           this.$Message.error(`错误：${res.code}，${res.message || res.msg}`)

@@ -58,7 +58,6 @@ export default {
     },
     getUserInfo () {
       this.$api.getInfo().then((res) => {
-        console.log(res)
         if (res.code === 0) {
           this.isLogined = true
           this.face = res.data.face
