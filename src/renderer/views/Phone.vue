@@ -286,6 +286,7 @@ export default {
       if (res.code === 0) {
         this.isLogined = true
         this.roomId = res.data.room_id
+        this.uid = res.data.uid
         this.getWaitList()
       } else {
         this.$Message.error('未登录或其他错误')

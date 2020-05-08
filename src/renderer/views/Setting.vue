@@ -3,6 +3,7 @@
     <h1>设置</h1>
     <div>
       <h2>音频设备</h2>
+      <p>暂时不支持通话中更换</p>
       <Form>
         <FormItem label="音频输入设备">
           <Select v-model="audioInputDevice" style="width:200px" @on-change="sync">

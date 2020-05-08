@@ -31,6 +31,7 @@ class AgoraController extends EventEmitter {
       this.remoteStreams.push(evt.stream)
       var remoteStream = evt.stream
       var id = remoteStream.getId()
+      console.log(id)
       if (id === this.targetUid) {
         this.client.subscribe(remoteStream, function (err) {
           this.emit('stream-suscribe-failed')
@@ -46,6 +47,7 @@ class AgoraController extends EventEmitter {
       var remoteStream = evt.stream
       if (remoteStream.hasAudio()) {
         this.getRemoteAudio = true
+        remoteStream.muteVideo()
         this.playStream(remoteStream)
       }
       var id = remoteStream.getId()
@@ -103,10 +105,12 @@ class AgoraController extends EventEmitter {
     if (this.joined) {
       throw (new Error('Already Joined'))
     } else {
+      this.uid = uid
       this.getRemoteAudio = false
       this.targetUid = targetUid
       this.currentChannel = channel
       this.timeout = setTimeout(() => {
+        debugger
         if (this.joined && this.published && this.getRemoteAudio) {} else {
           this.leave()
           this.emit('timeout')
@@ -114,7 +118,7 @@ class AgoraController extends EventEmitter {
         this.timeout = null
       }, timeout)
       return new Promise((resolve, reject) => {
-        this.client.join(null, channel, uid, (...args) => {
+        this.client.join(null, channel, '' + parseInt(this.uid), (...args) => {
           this.joined = true
           this.remoteStreams = []
           resolve(...args)
@@ -127,8 +131,6 @@ class AgoraController extends EventEmitter {
     clearTimeout(this.timeout)
     this.timeout = null
     return new Promise((resolve, reject) => {
-      this.localStream.close()
-      this.client.unpublish(this.localStream)
       this.client.leave((...args) => {
         this.cleanUp()
         resolve(...args)
@@ -156,6 +158,7 @@ class AgoraController extends EventEmitter {
 
     try {
       this.localStream.stop()
+      this.localStream.close()
     } catch (error) {
       console.log(error)
     } finally {
@@ -179,8 +182,10 @@ class AgoraController extends EventEmitter {
 
   async createLocalStream () {
     this.localStream = AgoraRTC.createStream({
+      streamID: this.uid,
       video: false,
       audio: true,
+      screen: false,
       audioSource: this.localSoundTrack
     })
     return this.localStream
