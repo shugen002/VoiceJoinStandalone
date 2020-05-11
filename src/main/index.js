@@ -4,6 +4,16 @@ import Consts from './Consts'
 import { API } from './Platform/API'
 import { DanmakuController } from './Platform/DanmakuController'
 
+/**
+ * Auto Updater
+ *
+ * Uncomment the following code below and install `electron-updater` to
+ * support auto updating. Code Signing with a valid certificate is required.
+ * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
+ */
+
+import { autoUpdater } from 'electron-updater'
+
 // set app name
 app.name = productName
 // to hide deprecation message
@@ -132,25 +142,15 @@ app.on('activate', () => {
   }
 })
 
-/**
- * Auto Updater
- *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
- */
-
 /*
-import { autoUpdater } from 'electron-updater'
-
 autoUpdater.on('update-downloaded', () => {
   autoUpdater.quitAndInstall()
 })
+ */
 
 app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
+  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdatesAndNotify()
 })
- */
 
 const sendMenuEvent = async (data) => {
   mainWindow.webContents.send('change-view', data)

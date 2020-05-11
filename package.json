@@ -13,7 +13,7 @@
     "vuex": "^3.1.3",
     "ws": "^7.2.3"
   },
-  "description": "An electron-vue project",
+  "description": "哔哩哔哩与观众连麦第三方独立客户端",
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
@@ -72,7 +72,7 @@
   "productName": "VoiceJoinStandalone",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mubaidr/vue-electron-template.git"
+    "url": "git+https://github.com/shugen002/VoiceJoinStandalone.git"
   },
   "scripts": {
     "build": "run-s rebuild:electron pack build-release",
@@ -101,5 +101,5 @@
     "test": "run-s rebuild:node pack:workers jest",
     "test:watch": "run-s rebuild:node pack:workers jest:watch"
   },
-  "version": "0.0.1"
+  "version": "1.0.0"
 }
