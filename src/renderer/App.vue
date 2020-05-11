@@ -39,16 +39,16 @@
                 <Icon type="md-help" />
                 帮助
               </MenuItem>
-              <MenuItem name="debug">
+              <MenuItem v-if="showDevtool" name="debug">
                 <Icon type="md-bug" />
                 Debug
               </MenuItem>
             </Menu>
           </div>
-          <div style="flex-grow:1"></div>
-          <div class="status-container">
+          <div style="flex-grow:1" @click="devtool"></div>
+          <!-- <div class="status-container">
             <div>头像</div><div>通话中 时长</div>
-          </div>
+          </div> -->
         </div>
       </Sider>
       <Content :style="{backgroundColor:'rgb(245,247,249)',minHeight:'100vh',maxheight:'100vh'}">
@@ -91,10 +91,12 @@ export default {
   data: function () {
     return {
       page: 'home',
-      count: 0
+      count: 0,
+      time: [0, 0, 0, 0, 0],
+      showDevtool: false
     }
   },
-  danmuku: {
+  danmaku: {
     VOICE_JOIN_ROOM_COUNT_INFO (msg) {
       if (msg.data && (msg.data.apply_count || msg.data.notify_count)) {
         this.count = msg.data.apply_count || msg.data.notify_count
@@ -103,9 +105,8 @@ export default {
       }
     },
     VOICE_JOIN_STATUS (msg) {
-
+      console.log(msg)
     }
-
   },
   agora: {
     connected () {
@@ -115,7 +116,7 @@ export default {
       this.$Message.success('通话已连接')
     },
     timeout () {
-      this.$Message.error('对方连接超时')
+      this.$Message.error('连接超时或未知错误')
     },
     'peer-leave' () {
       this.$Message.info('对方已离开通话')
@@ -127,7 +128,19 @@ export default {
   },
   methods: {
     onSelect (name) {
-      this.$router.push(name)
+      if (this.$route.name !== name) {
+        this.$router.push(name)
+      }
+    },
+    devtool () {
+      this.time[0] = this.time[1]
+      this.time[1] = this.time[2]
+      this.time[2] = this.time[3]
+      this.time[3] = this.time[4]
+      this.time[4] = Date.now()
+      if (this.time[4] - this.time[0] < 500) {
+        this.showDevtool = true
+      }
     }
   }
 }

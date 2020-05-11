@@ -21,7 +21,14 @@
     </div>
     <div class="panel">
       <h2>关于</h2>
-      <p>由于</p>
+      <p>这是一个树根佬的摸鱼项目，或许应该早一年就开始干的项目。不过现在终于把他摸出来了！</p>
+      <p>如果觉得可以的话，点点下面去我的个人空间点个关注吧。</p>
+      <p><a @click="openSpace">https://space.bilibili.com/2304086</a></p>
+      <p>当然，如果有能力的话，欢迎给这个项目提Issue或者PR什么的！</p>
+      <p><a @click="openProject">https://github.com/shugen002/VoiceJoinStandalone</a></p>
+      <p>↑👆反馈建议是在这里哦👆↑</p>
+      <br><br>
+      <p>常见的问题都写在帮助里面👈←</p>
     </div>
   </div>
 </template>
@@ -80,6 +87,12 @@ export default {
           this.$Message.error('未知错误，请到控制台查看错误。')
         }
       })
+    },
+    openSpace () {
+      this.$api.openExternal('https://space.bilibili.com/2304086')
+    },
+    openProject () {
+      this.$api.openExternal('https://github.com/shugen002/VoiceJoinStandalone')
     }
   }
 }

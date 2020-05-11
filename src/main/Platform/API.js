@@ -218,7 +218,7 @@ export class API {
     const data = {
       access_key: this.accessKey,
       room_id: roomId,
-      status: typeof status === 'number' ? status : (status ? 1 : 0)
+      status: typeof status === 'number' ? status : (status ? 1 : 2)
     }
     return (await this.axios.get('/av/v1/VoiceJoinAnchor/RoomSwitch', {
       params: sign(data, appkey, secret, platform)

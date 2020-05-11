@@ -1,17 +1,15 @@
 <template>
-  <div class="section">
-    <h1 class="title is-4">
-      Help
-    </h1>
-    <h2 class="subtitle is-6">
-      Add help content here
-    </h2>
-
-    <h2 class="subtitle is-6">
-      System Information
-    </h2>
-
-    <br>
+  <div class="container">
+    <h1>帮助</h1>
+    <h2>1、为什么我直播间手机页面没有显示连麦按钮</h2>
+    <p>答：B站内部是有记录开播工具的，目前只有直播姬和BiliBili Link是有这个连麦功能的，如果不是使用这些工具开播的话，B站会认为这个直播间不支持连麦，自动隐藏这个按钮。</p>
+    <p>本项目为了能够脱离这个限制，做了模拟BiliBili Link开播的功能，可以在左侧直播间进行开播下播等操作。</p>
+    <h2>2、参与条件没有保存按钮</h2>
+    <p>答：都是自动保存立刻生效的，所以直接删除了保存按钮。</p>
+    <h2>3、参与条件设定为指定用户时无法全部删除或会保留最后一个</h2>
+    <p>答：B站暂时不支持保存空用户列表</p>
+    <h2>4、咕咕咕</h2>
+    <p>咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕咕</p>
   </div>
 </template>
 
@@ -23,7 +21,8 @@ export default {
 </script>
 
 <style scoped>
-.block.has-text-centered figure {
-  margin: 0 auto;
+.container{
+  padding: 10px;
+  overflow-y: scroll;
 }
 </style>

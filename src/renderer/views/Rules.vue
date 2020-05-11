@@ -181,10 +181,10 @@ export default {
       })
     },
     getRoomCan () {
-      this.$api.getRoomCan(this.roomId).then((e) => {
-        if (e.code === 0) {
-          this.rootStatus = !!e.data.root_status
-          this.roomStatus = !!e.data.room_status
+      this.$api.getRoomCan(this.roomId).then((res) => {
+        if (res.code === 0) {
+          this.rootStatus = !!res.data.root_status
+          this.roomStatus = !!res.data.room_status
         }
       })
     },
