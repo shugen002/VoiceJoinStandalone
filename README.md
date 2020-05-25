@@ -2,6 +2,8 @@
 
 出货了
 
+![](https://img.shields.io/badge/works%20fine-for%20me-green)
+
 ## 介绍
 
 与观众连麦功能出来很久了，可没有见到任何的第三方工具让不使用直播姬的用户可以用上这个功能，于是就按照声网(agora.io)的开发文档，加上一点Electron和Vue整出了这个东西
