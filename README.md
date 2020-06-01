@@ -1,4 +1,6 @@
 # 哔哩哔哩与观众连麦第三方独立客户端
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fshugen002%2FVoiceJoinStandalone.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fshugen002%2FVoiceJoinStandalone?ref=badge_shield)
+
 
 出货了
 
@@ -43,3 +45,7 @@ npm run dev
 # Build installer for this app
 npm run build
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fshugen002%2FVoiceJoinStandalone.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fshugen002%2FVoiceJoinStandalone?ref=badge_large)
