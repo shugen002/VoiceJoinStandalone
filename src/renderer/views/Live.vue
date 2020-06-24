@@ -58,6 +58,16 @@
               </div>
             </div>
           </div>
+          <div v-if="liveStatus!==1">
+            <RadioGroup v-model="direction">
+              <Radio label="1">
+                竖屏
+              </Radio>
+              <Radio label="2">
+                横屏
+              </Radio>
+            </RadioGroup>
+          </div>
           <div class="button-container">
             <Button v-if="liveStatus==1" @click="stopLive">
               停止直播
@@ -169,7 +179,8 @@ export default {
       title: '',
       liveStatus: 0,
       rtmpaddr: 'addr',
-      rtmpcode: 'code'
+      rtmpcode: 'code',
+      direction: 2
     }
   },
   created () {
@@ -273,7 +284,7 @@ export default {
       })
     },
     startLive () {
-      this.$api.startLive(this.roomId, this.area, 2).then((res) => {
+      this.$api.startLive(this.roomId, this.area, this.direction).then((res) => {
         this.getUserInfo()
         if (res.code === 0) {
           this.rtmpaddr = res.data.rtmp.addr
