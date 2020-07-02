@@ -83,9 +83,6 @@
     "dev-runner": "node _scripts/dev-runner.js",
     "electron-builder-install": "electron-builder install-app-deps",
     "electron-rebuild": "electron-rebuild",
-    "jest": "jest",
-    "jest:coverage": "jest --collect-coverage",
-    "jest:watch": "jest --watch",
     "lint": "eslint --fix --ext .js,.ts,.vue ./",
     "pack": "run-p pack:main pack:renderer pack:web pack:preload",
     "pack:main": "webpack --mode=production --env.NODE_ENV=production --hide-modules --config _scripts/webpack.main.config.js",
@@ -97,9 +94,7 @@
     "prettier": "prettier --write \"{src,_scripts}/**/*.{js,ts,vue}\"",
     "rebuild:electron": "run-s electron-builder-install electron-rebuild",
     "rebuild:node": "npm rebuild",
-    "release": "run-s test build",
-    "test": "run-s rebuild:node pack:workers jest",
-    "test:watch": "run-s rebuild:node pack:workers jest:watch"
+    "release": "run-s test build"
   },
   "version": "1.0.1"
 }
