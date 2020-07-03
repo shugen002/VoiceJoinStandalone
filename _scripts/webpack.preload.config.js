@@ -21,6 +21,7 @@ const config = {
   devtool: isDevMode ? '#cheap-module-eval-source-map' : false,
   entry: {
     preload: path.join(__dirname, '../src/renderer/preload/index.js'),
+    fakeBiliBridge: path.join(__dirname, '../src/renderer/preload/fakeBiliBridge.js'),
   },
   output: {
     libraryTarget: 'commonjs2',

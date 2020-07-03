@@ -96,5 +96,5 @@
     "rebuild:node": "npm rebuild",
     "release": "run-s test build"
   },
-  "version": "1.0.1"
+  "version": "1.0.2"
 }
