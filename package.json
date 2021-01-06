@@ -4,7 +4,7 @@
     "url": "https://github.com/shugen002/VoiceJoinStandalone"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "electron-updater": "^4.3.1",
     "goimprotocol": "^1.0.2",
     "vue": "^2.6.11",
